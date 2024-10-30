@@ -102,33 +102,39 @@ class JvcProjector:
             self._device = None
 
     async def get_info(self) -> dict[str, str]:
-        """Get device info."""
+        """Get device info.
+
+        Returns:
+            dict[str, str]: Dictionary containing model and MAC address
+
+        Raises:
+            JvcProjectorError: If device is not connected or MAC address is unavailable
+        """
         if not self._device:
             raise JvcProjectorError("Must call connect before getting info")
 
+        # Create base commands that work regardless of power state
         model = JvcCommand(const.CMD_MODEL, True)
         mac = JvcCommand(const.CMD_LAN_SETUP_MAC_ADDRESS, True)
-        # ensure PJ is fully on first
-        if await self.is_on():
+        commands = [model, mac]
+
+        # Only add version command if projector is on
+        is_on = await self.is_on()
+        if is_on:
             version = JvcCommand(const.CMD_VERSION, True)
-            await self._send([model, mac, version])
-        else:
-            await self._send([model, mac])
+            commands.append(version)
 
+        # Send commands
+        await self._send(commands)
+
+        # Validate
         if mac.response is None:
-            # required for HA unique ID
-            raise JvcProjectorError("Mac address not available")
+            raise JvcProjectorError("MAC address not available")
 
-        if model.response is None:
-            model.response = "(unknown)"
-
-        if version.response is None:
-            version.response = "(unknown)"
-
-        # store to reference in state
-        self._model = model.response
-        self._mac = mac.response
-        self._version = version.response
+        # responses
+        self._model = model.response or "(unknown)"
+        self._mac = mac.response  # None checked above
+        self._version = version.response if is_on and version.response else "(unknown)"
 
         return {const.KEY_MODEL: self._model, const.KEY_MAC: self._mac}
 
@@ -223,6 +229,10 @@ class JvcProjector:
 
     def process_version(self, version: str) -> str:
         """Process version string."""
+
+        if version == "(unknown)":
+            return version
+
         version = version.removesuffix("PJ")
         version = version.zfill(4)
 
