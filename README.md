@@ -18,7 +18,9 @@ http://pro.jvc.com/pro/attributes/PRESENT/Manual/External%20Command%20Spec%20for
 * `JvcProjector::get_signal()` get signal state (_signal, nosignal_).
 * `JvcProjector::get_state()` returns {_power, input, signal_}.
 * `JvcProjector::get_info()` returns {_model, mac address_}.
-
+### Send supported commands
+* `JvcProjector::send_command(cmd, val)` where cmd is a const starting with `KEY_` and val is a valid option found in the corresponding key starting with `VAL_`. For example, `const.KEY_MOTION_ENHANCE` can have a value of `const.LOW`. Check `const.KEY_MAP_TO_COMMAND` for a full list of supported commands.
+ 
 ### Send remote control codes
 A wrapper for calling `JvcProjector::op(f"RC{code}")`
 * `JvcProjector::remote(code)` sends remote control command.

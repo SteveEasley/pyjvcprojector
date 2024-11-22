@@ -301,9 +301,14 @@ class JvcProjector:
         return {v: k for k, v in d.items()}
 
     async def send_command(self, cmd: str, val: str) -> None:
-        """Send a command to the projector."""
+        """Send a command to the projector using well-known names like "power". Intended to be human readable commands."""
         command_map = JvcCommand.command_map
-
+        
+        # map human readable command to actual command
+        try:
+            cmd = const.KEY_MAP_TO_COMMAND[cmd.lower()]
+        except KeyError as exc:
+            raise ValueError(f"Unknown command: {cmd}") from exc
         if cmd not in command_map:
             raise ValueError(f"Unknown command: {cmd}")
 

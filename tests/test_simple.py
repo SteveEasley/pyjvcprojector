@@ -31,7 +31,7 @@ async def test_connect():
         while not await jp.is_on():
             await asyncio.sleep(3)
 
-    await jp.send_command(const.CMD_PICTURE_MODE_LASER_POWER, const.VAL_LASER_POWER[1])
+    await jp.send_command(const.KEY_LASER_POWER, const.VAL_LASER_POWER[1])
     print("Current state:")
     state = await jp.get_state()
     for key, value in state.items():

@@ -119,7 +119,7 @@ async def test_send_command_success(dev: AsyncMock):
     # Patch the op method to avoid actual sending
     with patch.object(p, "op") as mock_op:
         await p.send_command(
-            const.CMD_PICTURE_MODE_LASER_POWER, const.VAL_LASER_POWER[1]
+            const.KEY_LASER_POWER, const.HIGH
         )
 
         # Assert that op was called once with the correct command
@@ -146,7 +146,7 @@ async def test_send_command_invalid_value(dev: AsyncMock):
         ValueError,
         match=f"Invalid value for {const.CMD_PICTURE_MODE_LASER_POWER}: invalid_value",
     ):
-        await p.send_command(const.CMD_PICTURE_MODE_LASER_POWER, "invalid_value")
+        await p.send_command(const.KEY_LASER_POWER, "invalid_value")
 
 
 @pytest.mark.asyncio
