@@ -112,9 +112,8 @@ KEY_MODEL: Final = "model"
 KEY_MAC: Final = "mac"
 KEY_VERSION: Final = "version"
 KEY_POWER: Final = "power"
-KEY_SIGNAL: Final = "signal"
-KEY_SOURCE: Final = "source"
 KEY_INPUT: Final = "input"
+KEY_SOURCE: Final = "source"
 KEY_PICTURE_MODE: Final = "picture_mode"
 KEY_LOW_LATENCY: Final = "low_latency"
 KEY_INSTALLATION_MODE: Final = "installation_mode"
@@ -126,7 +125,7 @@ KEY_COLOR_PROFILE: Final = "color_profile"
 KEY_GRAPHICS_MODE: Final = "graphics_mode"
 KEY_COLOR_SPACE: Final = "color_space"
 KEY_ESHIFT: Final = "eshift"
-KEY_LASER_MODE: Final = "laser_mode"
+KEY_LASER_DIMMING: Final = "laser_dimming"
 KEY_LASER_VALUE: Final = "laser_value"
 KEY_LASER_POWER: Final = "laser_power"
 KEY_LASER_TIME: Final = "laser_time"
@@ -134,7 +133,6 @@ KEY_MOTION_ENHANCE: Final = "motion_enhance"
 KEY_CLEAR_MOTION_DRIVE: Final = "clear_motion_drive"
 KEY_HDR_PROCESSING: Final = "hdr_processing"
 KEY_HDR_CONTENT_TYPE: Final = "hdr_content_type"
-KEY_LASER_DIMMING: Final = "laser_dimming"
 
 
 # Command constants
@@ -296,15 +294,15 @@ VAL_GAMMA_TABLE = {
     "15": "hdr_auto",
 }
 VAL_TOGGLE = [OFF, "on"]
-VAL_CLEAR_MOTION_DRIVE = [OFF, None, None, LOW, HIGH, "inverse_telecine"]
+VAL_CLEAR_MOTION_DRIVE = [OFF, "none", LOW, HIGH, "inverse_telecine"]
 VAL_MOTION_ENHANCE = [OFF, LOW, HIGH]
 VAL_LASER_POWER = [LOW, HIGH, MEDIUM]
 VAL_GRAPHICS_MODE = ["standard", "high-res"]
 VAL_HDMI_INPUT_LEVEL = ["standard", "enhanced", "super_white", AUTO]
 VAL_HDMI_COLOR_SPACE = [AUTO, "ycbcr(4:4:4)", "ycbcr(4:2:2)", "rgb"]
-VAL_HDMI_2D_3D = ["2d", AUTO, None, "side_by_side", "top_bottom"]
-VAL_ASPECT = [None, None, "zoom", AUTO, "native"]
-VAL_MASK = [None, ON, OFF]
+VAL_HDMI_2D_3D = ["2d", AUTO, "none", "side_by_side", "top_bottom"]
+VAL_ASPECT = ["none", "zoom", AUTO, "native"]
+VAL_MASK = ["none", ON, OFF]
 VAL_INSTALLATION_MODE = [f"mode{i}" for i in range(1, 11)]
 VAL_LENS_CONTROL = ["stop", "start"]
 VAL_INSTALLATION_STYLE = ["front", "front_ceiling", "rear", "rear_ceiling"]
@@ -395,6 +393,6 @@ VAL_HDR = {
 }
 VAL_HDR_LEVEL = [AUTO, "-2", "-1", "0", "1", "2"]
 VAL_HDR_PROCESSING = ["static", "frame", "scene"]
-VAL_HDR_CONTENT_TYPE = [AUTO, "sdr", None, "hdr10", "hlg"]
+VAL_HDR_CONTENT_TYPE = [AUTO, "sdr", "none", "hdr10", "hlg"]
 VAL_THEATER_OPTIMIZER_LEVEL = ["reserved", LOW, MEDIUM, HIGH]
 VAL_THEATER_OPTIMIZER_PROCESSING = ["-", "start"]
