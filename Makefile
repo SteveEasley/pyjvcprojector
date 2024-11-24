@@ -4,6 +4,13 @@ build:
 	python3 -m build
 	python -m twine upload -u __token__ dist/*
 
+dev-setup:
+	python -m venv .venv && \
+	. .venv/bin/activate && \
+	pip install -r requirements_dev.txt && \
+	pip install -r requirements.txt && \
+	pre-commit install
+
 clean:
 	rm -rf dist
 
