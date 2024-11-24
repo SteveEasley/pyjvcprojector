@@ -3,7 +3,7 @@
 from __future__ import annotations
 
 from . import command
-from .command import JvcCommand
+from .command import JvcCommand, JvcCommandHelpers
 from .connection import resolve
 from .device import JvcDevice
 from .error import JvcProjectorConnectError, JvcProjectorError
@@ -302,18 +302,32 @@ class JvcProjector:
 
     async def send_command(self, cmd: str, val: str) -> None:
         """Send a command to the projector using well-known names like "power". Intended to be human readable commands."""
-        command_map = JvcCommand.command_map
-        
-        # map human readable command to actual command
-        try:
-            cmd = const.KEY_MAP_TO_COMMAND[cmd.lower()]
-        except KeyError as exc:
-            raise ValueError(f"Unknown command: {cmd}") from exc
-        if cmd not in command_map:
+        # normalize the command and value
+        cmd = cmd.lower()
+        val = val.lower()
+
+        # get all valid commands and the PJ codes
+        valid_command_map = JvcCommandHelpers.get_available_commands()
+
+        # ensure the command is valid
+        if cmd not in valid_command_map:
             raise ValueError(f"Unknown command: {cmd}")
 
-        command_info = command_map[cmd]
+        # get the PJ code and values
+        cmd_values = valid_command_map[cmd]["values"]
+        raw_cmd = valid_command_map[cmd]["command"]
+        
+        # ensure the value is valid
+        try:
+            if val not in cmd_values:
+                raise ValueError(f"Invalid value for {cmd}: {val}")
+        except KeyError as exc:
+            raise ValueError(f"Unknown command: {cmd}") from exc
 
+        # get the PJ values like high = 1
+        command_info = JvcCommand.command_map[raw_cmd]
+
+        # transform human values to PJ values
         if command_info["values"] == "callable":
             # For callable formatters, we'll just pass the value as is
             value = val
@@ -324,4 +338,4 @@ class JvcProjector:
         else:
             raise ValueError(f"Unsupported command type for {cmd}")
 
-        await self.op(f"{cmd}{value}")
+        await self.op(f"{raw_cmd}{value}")

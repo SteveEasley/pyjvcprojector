@@ -144,7 +144,7 @@ async def test_send_command_invalid_value(dev: AsyncMock):
 
     with pytest.raises(
         ValueError,
-        match=f"Invalid value for {const.CMD_PICTURE_MODE_LASER_POWER}: invalid_value",
+        match=f"Invalid value for {const.KEY_LASER_POWER}: invalid_value",
     ):
         await p.send_command(const.KEY_LASER_POWER, "invalid_value")
 
@@ -158,5 +158,5 @@ async def test_send_command_unknown_command(dev: AsyncMock):
     # Mock the _build_command_map method
     p._build_command_map = lambda: {}
 
-    with pytest.raises(ValueError, match="Unknown command: UNKNOWN_COMMAND"):
+    with pytest.raises(ValueError, match="Unknown command: unknown_command"):
         await p.send_command("UNKNOWN_COMMAND", "value")

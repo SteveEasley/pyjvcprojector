@@ -5,7 +5,7 @@ from __future__ import annotations
 from collections.abc import Callable
 import logging
 import re
-from typing import Final, Any
+from typing import Final, Any, Dict, List, Union, Optional
 import math
 from . import const
 
@@ -182,3 +182,185 @@ class JvcCommand:
     }
 
     command_map: dict[str, dict[str, Any]] = _build_command_map(formatters)
+
+    @staticmethod
+    def get_available_commands() -> dict[str, str]:
+        """Return a map of commands to their allowed values/responses based on the available command_map."""
+
+        human_commands: dict[str, str] = {}
+        for cmd, values in JvcCommandHelpers.get_available_commands().items():
+            human_commands[cmd] = values["values"]
+        return human_commands
+
+
+class JvcCommandHelpers:
+    """Helper methods for JVC Command handling and documentation."""
+
+    # Define override maps for commands where input values differ from return values
+    COMMAND_VALUE_OVERRIDES = {
+        "power": [
+            "on",
+            "standby",
+        ],  # Can only send standby/on, even though we might receive other states
+        "source": None,  # Read-only, can't send values
+        "laser_time": None,  # Read-only, can't send values
+    }
+
+    @staticmethod
+    def format_value_name(value: str) -> str:
+        """Format a command value into a human-readable string."""
+        # Replace underscores with spaces
+        formatted = value.replace("_", " ")
+
+        # make sure all words are lowercase
+        formatted = " ".join(word.lower() for word in formatted.split())
+
+        return formatted
+
+    @staticmethod
+    def format_command_name(command: str) -> str:
+        """Format a command name into a human-readable string."""
+        # Remove KEY_ prefix if present
+        command = re.sub(r"^KEY_", "", command)
+        # Replace underscores with spaces
+        formatted = command.replace("_", " ")
+        # Capitalize first letter of each word
+        return " ".join(word.capitalize() for word in formatted.split())
+
+    @staticmethod
+    def format_value_list(values: Union[List[str], Dict[str, str]]) -> List[str]:
+        """Format a list or dict of values into human-readable strings."""
+        if isinstance(values, dict):
+            # For dictionaries, we only want the values, not the keys
+            value_list = list(values.values())
+        else:
+            value_list = values
+
+        return [JvcCommandHelpers.format_value_name(str(val)) for val in value_list]
+
+    @classmethod
+    def get_command_values(
+        cls, command: str, values: Union[List[str], Dict[str, str]]
+    ) -> Optional[List[str]]:
+        """
+        Get the appropriate command values, taking into account any overrides.
+
+        Args:
+            command: The command key
+            values: The default values from the command map
+
+        Returns:
+            List of valid input values for the command or None if read-only
+        """
+        # Check if we have an override for this command
+        if command in cls.COMMAND_VALUE_OVERRIDES:
+            return cls.COMMAND_VALUE_OVERRIDES[command]
+
+        # No override, process normal values
+        return cls.format_value_list(values)
+
+    @classmethod
+    def get_available_commands(cls) -> Dict[str, Dict[str, Any]]:
+        """
+        Return a detailed map of commands and their allowed values/responses.
+
+        Returns:
+            Dict with structure:
+            {
+                "command_name": {
+                    "name": "Human Readable Name",
+                    "values": ["Value 1", "Value 2"],
+                    "description": "Command description",
+                    "type": "enum|range|read_only",
+                    "command": "PJ_COMMAND"  # The raw projector command
+                }
+            }
+        """
+        human_commands: Dict[str, Dict[str, Any]] = {}
+
+        # Command category descriptions
+        categories = {
+            "POWER": "Controls projector power state",
+            "INPUT": "Selects input source",
+            "PICTURE_MODE": "Controls picture mode settings",
+            "INSTALLATION": "Controls installation and setup options",
+            "HDR": "Controls HDR-related settings",
+            "LASER": "Controls laser and brightness settings",
+            "COLOR": "Controls color-related settings",
+            "MOTION": "Controls motion-related settings",
+        }
+
+        for human_cmd, pj_cmd in const.KEY_MAP_TO_COMMAND.items():
+            command_data = JvcCommand.command_map.get(pj_cmd, {})
+
+            # Skip if no command data found
+            if not command_data:
+                continue
+
+            # Determine command category
+            category = next(
+                (cat for cat in categories.keys() if cat in human_cmd.upper()),
+                "GENERAL",
+            )
+
+            values = command_data.get("values", {})
+
+            command_info = {
+                "name": cls.format_command_name(human_cmd),
+                "category": category,
+                "description": categories.get(category, "General setting"),
+                "command": pj_cmd,
+            }
+
+            # Handle different value types
+            if values == "callable":
+                command_info["values"] = ["0-100"]
+                command_info["type"] = "range"
+            elif isinstance(values, (list, dict)):
+                command_values = cls.get_command_values(human_cmd, values)
+                if command_values is None:
+                    command_info["values"] = []
+                    command_info["type"] = "read_only"
+                else:
+                    command_info["values"] = command_values
+                    command_info["type"] = "enum"
+            else:
+                command_info["values"] = []
+                command_info["type"] = "unknown"
+
+            human_commands[human_cmd] = command_info
+
+        return human_commands
+
+    @classmethod
+    def get_command_help(cls, command: str) -> str:
+        """
+        Generate a human-readable help string for a specific command.
+
+        Args:
+            command: The command key to get help for
+
+        Returns:
+            A formatted help string with command details
+        """
+        commands = cls.get_available_commands()
+        if command not in commands:
+            return f"Unknown command: {command}"
+
+        cmd_info = commands[command]
+
+        help_text = [
+            f"Command: {cmd_info['name']}",
+            f"Category: {cmd_info['category']}",
+            f"Description: {cmd_info['description']}",
+        ]
+
+        if cmd_info["type"] == "read_only":
+            help_text.append("Type: Read Only")
+        elif cmd_info["type"] == "range":
+            help_text.append("Accepts values: 0-100")
+        elif cmd_info["values"]:
+            help_text.append("Available values:")
+            help_text.extend(f"  - {value}" for value in cmd_info["values"])
+
+        return "\n".join(help_text)

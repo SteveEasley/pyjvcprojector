@@ -318,7 +318,7 @@ VAL_GAMMA_TABLE = {
     "10": "thx",
     "15": "hdr_auto",
 }
-VAL_TOGGLE = [OFF, "on"]
+VAL_TOGGLE = [OFF, ON]
 VAL_CLEAR_MOTION_DRIVE = [OFF, "none", LOW, HIGH, "inverse_telecine"]
 VAL_MOTION_ENHANCE = [OFF, LOW, HIGH]
 VAL_LASER_POWER = [LOW, HIGH, MEDIUM]
