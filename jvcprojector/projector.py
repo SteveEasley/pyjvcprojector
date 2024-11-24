@@ -59,7 +59,7 @@ class JvcProjector:
         """Returns model name."""
         if not self._mac:
             raise JvcProjectorError("model not initialized")
-        return self._model
+        return self.process_model_code(self._model)
 
     @property
     def mac(self) -> str:
@@ -225,7 +225,7 @@ class JvcProjector:
 
     def process_model_code(self, model: str) -> str:
         """Process model code."""
-        return const.MODEL_MAP.get(model[-4:], "Unsupported")
+        return const.MODEL_MAP.get(model[-4:], f"{model}: Unknown")
 
     def process_version(self, version: str) -> str:
         """Process version string."""
@@ -316,7 +316,7 @@ class JvcProjector:
         # get the PJ code and values
         cmd_values = valid_command_map[cmd]["values"]
         raw_cmd = valid_command_map[cmd]["command"]
-        
+
         # ensure the value is valid
         try:
             if val not in cmd_values:

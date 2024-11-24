@@ -54,7 +54,7 @@ async def test_unknown_model(dev: AsyncMock):
     await p.connect()
     await p.get_info()
     assert p.mac == MAC
-    assert p.model == "(unknown)"
+    assert p.model == "(unknown): Unknown"
 
 
 @pytest.mark.asyncio
@@ -75,6 +75,8 @@ async def test_get_info(dev: AsyncMock):
     p = JvcProjector(IP)
     await p.connect()
     assert await p.get_info() == {"model": MODEL, "mac": MAC}
+    # make sure model code is right
+    assert p.model in const.MODEL_MAP.values()
 
 
 @pytest.mark.asyncio
