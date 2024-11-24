@@ -9,7 +9,7 @@ from jvcprojector import const
 from jvcprojector.error import JvcProjectorError
 from jvcprojector.projector import JvcProjector
 
-from . import HOST, IP, MAC, MODEL, PORT
+from . import HOST, IP, MAC, MODEL, PORT, VERSION
 
 
 @pytest.mark.asyncio
@@ -77,6 +77,8 @@ async def test_get_info(dev: AsyncMock):
     assert await p.get_info() == {"model": MODEL, "mac": MAC}
     # make sure model code is right
     assert p.model in const.MODEL_MAP.values()
+    # make sure version is right
+    assert p.version == "3.0.0"
 
 
 @pytest.mark.asyncio
@@ -92,9 +94,9 @@ async def test_get_state(dev: AsyncMock):
 
 def test_version():
     """Test version processing."""
-    version = "0300PJ"
+
     p = JvcProjector(IP)
-    assert p.process_version(version) == "3.0.0"
+    assert p.process_version(VERSION) == "3.0.0"
 
 
 def test_model():
@@ -120,9 +122,7 @@ async def test_send_command_success(dev: AsyncMock):
 
     # Patch the op method to avoid actual sending
     with patch.object(p, "op") as mock_op:
-        await p.send_command(
-            const.KEY_LASER_POWER, const.HIGH
-        )
+        await p.send_command(const.KEY_LASER_POWER, const.HIGH)
 
         # Assert that op was called once with the correct command
         mock_op.assert_called_once_with(f"{const.CMD_PICTURE_MODE_LASER_POWER}1")

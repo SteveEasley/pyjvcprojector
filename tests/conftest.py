@@ -10,7 +10,7 @@ from jvcprojector import command, const
 from jvcprojector.command import JvcCommand
 from jvcprojector.device import HEAD_ACK, PJACK, PJOK
 
-from . import IP, MAC, MODEL, PORT, cc
+from . import IP, MAC, MODEL, PORT, cc, VERSION
 
 
 @pytest.fixture(name="conn")
@@ -59,6 +59,7 @@ def fixture_mock_device(request):
             const.CMD_POWER: const.ON,
             const.CMD_INPUT: const.HDMI1,
             const.CMD_SOURCE: const.SIGNAL,
+            const.CMD_VERSION: VERSION,
         }
 
         if hasattr(request, "param"):

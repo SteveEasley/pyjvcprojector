@@ -73,7 +73,7 @@ class JvcProjector:
         """Get device software version."""
         if not self._version:
             raise JvcProjectorError("version address not initialized")
-        return self._version
+        return self.process_version(self._version)
 
     async def is_on(self) -> bool:
         """Returns if device is fully on and ready."""

@@ -9,6 +9,7 @@ TIMEOUT = 3.0
 MAC = "abcd1234"
 MODEL = "A2B1"
 PASSWORD = "pass1234"
+VERSION = "0300PJ"
 
 
 def cc(hdr: bytes, cmd: str):
