@@ -6,3 +6,6 @@ build:
 
 clean:
 	rm -rf dist
+
+test:
+	coverage run --source jvcprojector --module pytest && coverage report --show-missing
