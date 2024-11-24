@@ -5,7 +5,7 @@ from __future__ import annotations
 from collections.abc import Callable
 import logging
 import re
-from typing import Final, Any, Dict, List, Union, Optional
+from typing import Final, Any
 import math
 from . import const
 
@@ -57,7 +57,7 @@ class JvcCommand:
                         index = int(m[1], 16)
                         if 0 <= index < len(fmt):
                             return fmt[index]
-                        return val
+                        return val  # noqa: TRY300
                     except ValueError:
                         msg = "response '%s' not int for cmd '%s'"
                         _LOGGER.warning(msg, val, self.code)
@@ -89,7 +89,7 @@ class JvcCommand:
 
     @staticmethod
     def _build_command_map(
-        formatters: dict[str, list | dict | Callable]
+        formatters: dict[str, list | dict | Callable],
     ) -> dict[str, dict[str, Any]]:
         """Use the Formatters object in JvcCommand to build a command map to reduce code duplication."""
         command_map = {}
@@ -114,7 +114,7 @@ class JvcCommand:
                     },
                 }
             elif callable(formatter):
-                command_map[opcode] = {"values": "callable"}
+                command_map[opcode] = {"values": {"callable": "callable"}}
             else:
                 command_map[opcode] = {"values": formatter}
         return command_map
@@ -213,9 +213,7 @@ class JvcCommandHelpers:
         formatted = value.replace("_", " ")
 
         # make sure all words are lowercase
-        formatted = " ".join(word.lower() for word in formatted.split())
-
-        return formatted
+        return " ".join(word.lower() for word in formatted.split())
 
     @staticmethod
     def format_command_name(command: str) -> str:
@@ -228,7 +226,7 @@ class JvcCommandHelpers:
         return " ".join(word.capitalize() for word in formatted.split())
 
     @staticmethod
-    def format_value_list(values: Union[List[str], Dict[str, str]]) -> List[str]:
+    def format_value_list(values: list[str] | dict[str, str]) -> list[str]:
         """Format a list or dict of values into human-readable strings."""
         if isinstance(values, dict):
             # For dictionaries, we only want the values, not the keys
@@ -240,10 +238,9 @@ class JvcCommandHelpers:
 
     @classmethod
     def get_command_values(
-        cls, command: str, values: Union[List[str], Dict[str, str]]
-    ) -> Optional[List[str]]:
-        """
-        Get the appropriate command values, taking into account any overrides.
+        cls, command: str, values: list[str] | dict[str, str]
+    ) -> list[str] | None:
+        """Get the appropriate command values, taking into account any overrides.
 
         Args:
             command: The command key
@@ -251,6 +248,7 @@ class JvcCommandHelpers:
 
         Returns:
             List of valid input values for the command or None if read-only
+
         """
         # Check if we have an override for this command
         if command in cls.COMMAND_VALUE_OVERRIDES:
@@ -260,9 +258,8 @@ class JvcCommandHelpers:
         return cls.format_value_list(values)
 
     @classmethod
-    def get_available_commands(cls) -> Dict[str, Dict[str, Any]]:
-        """
-        Return a detailed map of commands and their allowed values/responses.
+    def get_available_commands(cls) -> dict[str, dict[str, Any]]:
+        """Return a detailed map of commands and their allowed values/responses.
 
         Returns:
             Dict with structure:
@@ -275,8 +272,9 @@ class JvcCommandHelpers:
                     "command": "PJ_COMMAND"  # The raw projector command
                 }
             }
+
         """
-        human_commands: Dict[str, Dict[str, Any]] = {}
+        human_commands: dict[str, dict[str, Any]] = {}
 
         # Command category descriptions
         categories = {
@@ -299,7 +297,7 @@ class JvcCommandHelpers:
 
             # Determine command category
             category = next(
-                (cat for cat in categories.keys() if cat in human_cmd.upper()),
+                (cat for cat in categories if cat in human_cmd.upper()),
                 "GENERAL",
             )
 
@@ -314,18 +312,20 @@ class JvcCommandHelpers:
 
             # Handle different value types
             if values == "callable":
-                command_info["values"] = ["0-100"]
+                command_info["values"] = '["0-100"]'
                 command_info["type"] = "range"
             elif isinstance(values, (list, dict)):
                 command_values = cls.get_command_values(human_cmd, values)
                 if command_values is None:
-                    command_info["values"] = []
+                    command_info["values"] = ""
                     command_info["type"] = "read_only"
                 else:
-                    command_info["values"] = command_values
+                    command_info["values"] = ", ".join(
+                        f'"{val}"' for val in command_values
+                    )
                     command_info["type"] = "enum"
             else:
-                command_info["values"] = []
+                command_info["values"] = ""
                 command_info["type"] = "unknown"
 
             human_commands[human_cmd] = command_info
@@ -334,14 +334,14 @@ class JvcCommandHelpers:
 
     @classmethod
     def get_command_help(cls, command: str) -> str:
-        """
-        Generate a human-readable help string for a specific command.
+        """Generate a human-readable help string for a specific command.
 
         Args:
             command: The command key to get help for
 
         Returns:
             A formatted help string with command details
+
         """
         commands = cls.get_available_commands()
         if command not in commands:

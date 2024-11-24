@@ -194,7 +194,7 @@ class JvcDevice:
 
         if not data.startswith(HEAD_ACK + code[0:2]):
             raise JvcProjectorCommandError(
-                f"Response ack invalid '{data!r}' for '{cmd.code}' expected '{HEAD_ACK + code[0:2]}'"
+                f"Response ack invalid '{data!r}' for '{cmd.code}' expected '{HEAD_ACK + code[0:2]!r}'"
             )
 
         if cmd.is_ref:

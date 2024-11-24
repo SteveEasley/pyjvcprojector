@@ -9,7 +9,7 @@ dev-setup:
 	. .venv/bin/activate && \
 	pip install -r requirements_dev.txt && \
 	pip install -r requirements.txt && \
-	pre-commit install
+	echo "Dev setup complete. Run 'source .venv/bin/activate' to activate the virtual environment and pre-commit install."
 
 clean:
 	rm -rf dist

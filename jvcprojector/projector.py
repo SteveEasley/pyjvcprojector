@@ -1,7 +1,7 @@
 """Module for interacting with a JVC Projector."""
 
 from __future__ import annotations
-
+from typing import Mapping
 from . import command
 from .command import JvcCommand, JvcCommandHelpers
 from .connection import resolve
@@ -76,7 +76,7 @@ class JvcProjector:
         return self.process_version(self._version)
 
     async def is_on(self) -> bool:
-        """Returns if device is fully on and ready."""
+        """Return if device is fully on and ready."""
         return await self.get_power() == const.ON
 
     async def connect(self, get_info: bool = False) -> None:
@@ -109,6 +109,7 @@ class JvcProjector:
 
         Raises:
             JvcProjectorError: If device is not connected or MAC address is unavailable
+
         """
         if not self._device:
             raise JvcProjectorError("Must call connect before getting info")
@@ -138,7 +139,7 @@ class JvcProjector:
 
         return {const.KEY_MODEL: self._model, const.KEY_MAC: self._mac}
 
-    async def get_state(self) -> dict[str, str | None]:
+    async def get_state(self) -> Mapping[str, str | None]:
         """Get device state."""
         if not self._device:
             raise JvcProjectorError("Must call connect before getting state")
@@ -154,7 +155,7 @@ class JvcProjector:
             res = await self._send(cmd_vals)
             # discard the command values and zip the keys with the responses
             for (key, _), value in zip(commands.items(), res):
-                self._dict[key] = value
+                self._dict[key] = value if value is not None else ""
 
         # Always get power state
         await send_and_update({const.KEY_POWER: const.CMD_POWER})

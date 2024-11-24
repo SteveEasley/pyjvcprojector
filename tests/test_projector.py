@@ -2,8 +2,8 @@
 
 from unittest.mock import AsyncMock
 
-import pytest
 from unittest.mock import patch
+import pytest
 
 from jvcprojector import const
 from jvcprojector.error import JvcProjectorError
@@ -113,12 +113,13 @@ async def test_send_command_success(dev: AsyncMock):
     await p.connect()
 
     # Mock the _build_command_map method
-    p._build_command_map = lambda: {
-        const.CMD_PICTURE_MODE_LASER_POWER: {
-            "values": {"0": "low", "1": "high", "2": "medium"},
-            "inverse": {"low": "0", "high": "1", "medium": "2"},
+    with patch("jvcprojector.projector.JvcCommand._build_command_map") as mock_build:
+        mock_build.return_value = {
+            const.CMD_PICTURE_MODE_LASER_POWER: {
+                "values": {"0": "low", "1": "high", "2": "medium"},
+                "inverse": {"low": "0", "high": "1", "medium": "2"},
+            }
         }
-    }
 
     # Patch the op method to avoid actual sending
     with patch.object(p, "op") as mock_op:
@@ -137,12 +138,13 @@ async def test_send_command_invalid_value(dev: AsyncMock):
     await p.connect()
 
     # Mock the _build_command_map method
-    p._build_command_map = lambda: {
-        const.CMD_PICTURE_MODE_LASER_POWER: {
-            "values": {"0": "low", "1": "high", "2": "medium"},
-            "inverse": {"low": "0", "high": "1", "medium": "2"},
+    with patch("jvcprojector.projector.JvcCommand._build_command_map") as mock_build:
+        mock_build.return_value = {
+            const.CMD_PICTURE_MODE_LASER_POWER: {
+                "values": {"0": "low", "1": "high", "2": "medium"},
+                "inverse": {"low": "0", "high": "1", "medium": "2"},
+            }
         }
-    }
 
     with pytest.raises(
         ValueError,
@@ -158,7 +160,8 @@ async def test_send_command_unknown_command(dev: AsyncMock):
     await p.connect()
 
     # Mock the _build_command_map method
-    p._build_command_map = lambda: {}
+    with patch("jvcprojector.projector.JvcCommand._build_command_map") as mock_build:
+        mock_build.return_value = {}
 
-    with pytest.raises(ValueError, match="Unknown command: unknown_command"):
-        await p.send_command("UNKNOWN_COMMAND", "value")
+        with pytest.raises(ValueError, match="Unknown command: unknown_command"):
+            await p.send_command("unknown_command", "value")

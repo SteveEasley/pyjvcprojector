@@ -1,3 +1,6 @@
+# type: ignore
+"""simple example"""
+
 import asyncio
 import logging
 

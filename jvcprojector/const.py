@@ -22,10 +22,6 @@ INPUT: Final = "input"
 HDMI1 = "hdmi1"
 HDMI2 = "hdmi2"
 
-SOURCE: Final = "source"
-NOSIGNAL: Final = "nosignal"
-SIGNAL: Final = "signal"
-
 REMOTE_MENU: Final = "732E"
 REMOTE_UP: Final = "7301"
 REMOTE_DOWN: Final = "7302"
@@ -418,6 +414,12 @@ VAL_HDR = {
 }
 VAL_HDR_LEVEL = [AUTO, "-2", "-1", "0", "1", "2"]
 VAL_HDR_PROCESSING = ["static", "frame", "scene"]
-VAL_HDR_CONTENT_TYPE = [AUTO, HDR_CONTENT_SDR, "none", HDR_CONTENT_HDR10, HDR_CONTENT_HLG]
+VAL_HDR_CONTENT_TYPE = [
+    AUTO,
+    HDR_CONTENT_SDR,
+    "none",
+    HDR_CONTENT_HDR10,
+    HDR_CONTENT_HLG,
+]
 VAL_THEATER_OPTIMIZER_LEVEL = ["reserved", LOW, MEDIUM, HIGH]
 VAL_THEATER_OPTIMIZER_PROCESSING = ["-", "start"]
