@@ -331,7 +331,7 @@ VAL_MASK = ["none", ON, OFF]
 VAL_INSTALLATION_MODE = [f"mode{i}" for i in range(1, 11)]
 VAL_LENS_CONTROL = ["stop", "start"]
 VAL_INSTALLATION_STYLE = ["front", "front_ceiling", "rear", "rear_ceiling"]
-VAL_ANAMORPHIC = [OFF, "a", "b", "c", "d"]
+VAL_ANAMORPHIC = [OFF, ANAMORPHIC_A, ANAMORPHIC_B, ANAMORPHIC_C, ANAMORPHIC_D]
 VAL_BACK_COLOR = ["blue", "black"]
 VAL_MENU_POSITION = [
     "left-top",
@@ -410,14 +410,14 @@ VAL_COLORIMETRY = [
     "srgb",
 ]
 VAL_HDR = {
-    "0": "sdr",
-    "1": "hdr",
+    "0": HDR_CONTENT_SDR,
+    "1": KEY_HDR,
     "2": "smpte_st_2084",
     "3": "hybrid_log",
     "F": "none",
 }
 VAL_HDR_LEVEL = [AUTO, "-2", "-1", "0", "1", "2"]
 VAL_HDR_PROCESSING = ["static", "frame", "scene"]
-VAL_HDR_CONTENT_TYPE = [AUTO, "sdr", "none", "hdr10", "hlg"]
+VAL_HDR_CONTENT_TYPE = [AUTO, HDR_CONTENT_SDR, "none", HDR_CONTENT_HDR10, HDR_CONTENT_HLG]
 VAL_THEATER_OPTIMIZER_LEVEL = ["reserved", LOW, MEDIUM, HIGH]
 VAL_THEATER_OPTIMIZER_PROCESSING = ["-", "start"]
