@@ -57,7 +57,8 @@ class JvcDevice:
         """Send commands to device."""
         async with self._lock:
             # Treat status refreshes with special handling
-            is_refresh = len(cmds) > 1 and cmds[0].is_ref and cmds[0].is_power
+            # if any cmd is a ref, then it is a refresh
+            is_refresh = any(cmd.is_ref for cmd in cmds)
 
             # Connection keepalive window for fast command repeats
             keepalive = True

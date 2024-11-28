@@ -151,11 +151,14 @@ class JvcProjector:
 
         async def send_and_update(commands: dict[str, str]) -> None:
             """Send commands and update the dictionary."""
+            # send commands with is_ref set to true
             cmd_vals = [JvcCommand(cmd, True) for cmd in commands.values()]
             res = await self._send(cmd_vals)
             # discard the command values and zip the keys with the responses
             for (key, _), value in zip(commands.items(), res):
-                self._dict[key] = value if value is not None else ""
+                # Only store non-None values
+                if value is not None:
+                    self._dict[key] = value
 
         # Always get power state
         await send_and_update({const.KEY_POWER: const.CMD_POWER})
@@ -207,9 +210,7 @@ class JvcProjector:
             if (
                 self._dict.get("hdr")
                 not in [const.HDR_CONTENT_NONE, const.HDR_CONTENT_SDR]
-            ) and self._dict.get(
-                const.KEY_SOURCE
-            ) == const.SIGNAL:  # only get if there is a signal
+            ) and self._dict.get(const.KEY_SOURCE) == const.SIGNAL:
                 await send_and_update(
                     {
                         const.KEY_HDR_PROCESSING: const.CMD_PICTURE_MODE_HDR_PROCESSING,
