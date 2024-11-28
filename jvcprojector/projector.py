@@ -132,7 +132,7 @@ class JvcProjector:
 
         # Send commands
         await self._send(commands)
-        _LOGGER.debug("Got responses %s", commands)
+        _LOGGER.debug("Got responses %s", [cmd.response for cmd in commands])
 
         # Validate
         if mac.response is None:

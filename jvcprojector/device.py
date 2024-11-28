@@ -57,8 +57,10 @@ class JvcDevice:
         """Send commands to device."""
         async with self._lock:
             # Treat status refreshes with special handling
-            # if any cmd is a ref, then it is a refresh
-            is_refresh = any(cmd.is_ref for cmd in cmds) and len(cmds) > 1
+            # if any cmd is a ref, and the first cmd is a power cmd
+            is_refresh = (
+                any(cmd.is_ref for cmd in cmds) and len(cmds) > 1 and cmds[0].is_power
+            )
             _LOGGER.debug("Sending %s", "refresh" if is_refresh else "commands")
 
             # Connection keepalive window for fast command repeats
@@ -85,12 +87,12 @@ class JvcDevice:
                     # however, it IS possible to lock up even NZ models
                     await asyncio.sleep(0.2)
                     # If device is not powered on, skip remaining commands
-                    # is_refresh was not accurately accounted for with the previous logic so we can't break if power is off, we need mac
-                    if (
-                        is_refresh
-                        and cmds[0].response != const.ON
-                        and cmd.code != const.CMD_LAN_SETUP_MAC_ADDRESS
-                    ):
+                    # mac cannot be is_refresh here and first command must be pw if its a refresh
+                    if is_refresh and cmds[0].response != const.ON:
+                        _LOGGER.debug(
+                            "Skipping commands due to power off which are %s",
+                            [c.code for c in cmds],
+                        )
                         break
             except Exception:
                 keepalive = False
