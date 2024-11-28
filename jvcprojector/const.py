@@ -317,7 +317,11 @@ VAL_GAMMA_TABLE = {
 VAL_TOGGLE = [OFF, ON]
 VAL_CLEAR_MOTION_DRIVE = [OFF, "none", LOW, HIGH, "inverse_telecine"]
 VAL_MOTION_ENHANCE = [OFF, LOW, HIGH]
-VAL_LASER_POWER = [LOW, MEDIUM, HIGH]
+VAL_LASER_POWER = [
+    LOW,
+    HIGH,
+    MEDIUM,
+]  # note this order can't change due to how building comamands works. JVC historically did not have medium it was added with the NZ series. It is 2 for medium, 1 for high.
 VAL_GRAPHICS_MODE = ["standard", "high-res"]
 VAL_HDMI_INPUT_LEVEL = ["standard", "enhanced", "super_white", AUTO]
 VAL_HDMI_COLOR_SPACE = [AUTO, "ycbcr(4:4:4)", "ycbcr(4:2:2)", "rgb"]
