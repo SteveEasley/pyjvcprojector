@@ -8,9 +8,12 @@ from .connection import resolve
 from .device import JvcDevice
 from .error import JvcProjectorConnectError, JvcProjectorError
 from . import const
+import logging
 
 DEFAULT_PORT = 20554
 DEFAULT_TIMEOUT = 15.0
+
+_LOGGER = logging.getLogger(__name__)
 
 
 class JvcProjector:
@@ -118,15 +121,18 @@ class JvcProjector:
         model = JvcCommand(const.CMD_MODEL, True)
         mac = JvcCommand(const.CMD_LAN_SETUP_MAC_ADDRESS, True)
         commands = [model, mac]
+        _LOGGER.debug("Getting info with commands %s", commands)
 
         # Only add version command if projector is on
         is_on = await self.is_on()
         if is_on:
+            _LOGGER.debug("Projector is on, adding version command")
             version = JvcCommand(const.CMD_VERSION, True)
             commands.append(version)
 
         # Send commands
         await self._send(commands)
+        _LOGGER.debug("Got responses %s", commands)
 
         # Validate
         if mac.response is None:

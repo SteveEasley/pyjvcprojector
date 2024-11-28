@@ -1,6 +1,7 @@
 all: clean build
 
 build:
+	rm -rf dist
 	python3 -m build
 	python -m twine upload -u __token__ dist/*
 
