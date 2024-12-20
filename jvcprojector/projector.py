@@ -178,6 +178,7 @@ class JvcProjector:
                     const.KEY_PICTURE_MODE: const.CMD_PICTURE_MODE,
                     const.KEY_LOW_LATENCY: const.CMD_PICTURE_MODE_LOW_LATENCY,
                     const.KEY_LASER_POWER: const.CMD_PICTURE_MODE_LASER_POWER,
+                    const.KEY_LASER_TIME: const.CMD_FUNCTION_LASER_TIME,
                     const.KEY_ANAMORPHIC: const.CMD_INSTALLATION_ANAMORPHIC,
                     const.KEY_INSTALLATION_MODE: const.CMD_INSTALLATION_MODE,
                 }
@@ -207,7 +208,6 @@ class JvcProjector:
                         const.KEY_CLEAR_MOTION_DRIVE: const.CMD_PICTURE_MODE_CLEAR_MOTION_DRIVE,
                         const.KEY_MOTION_ENHANCE: const.CMD_PICTURE_MODE_MOTION_ENHANCE,
                         const.KEY_LASER_VALUE: const.CMD_PICTURE_MODE_LASER_VALUE,
-                        const.KEY_LASER_TIME: const.CMD_FUNCTION_LASER_TIME,
                         const.KEY_LASER_DIMMING: const.CMD_LASER_DIMMING,
                     }
                 )

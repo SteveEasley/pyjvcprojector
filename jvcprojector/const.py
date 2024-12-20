@@ -317,12 +317,13 @@ VAL_GAMMA_TABLE = {
 VAL_TOGGLE = [OFF, ON]
 VAL_CLEAR_MOTION_DRIVE = [OFF, "none", LOW, HIGH, "inverse_telecine"]
 VAL_MOTION_ENHANCE = [OFF, LOW, HIGH]
+# note this order can't change due to how building comamands works. JVC historically did not have medium it was added with the NZ series. It is 2 for medium, 1 for high.
 VAL_LASER_POWER = [
     LOW,
     HIGH,
     MEDIUM,
-]  # note this order can't change due to how building comamands works. JVC historically did not have medium it was added with the NZ series. It is 2 for medium, 1 for high.
-VAL_GRAPHICS_MODE = ["standard", "high-res"]
+]
+VAL_GRAPHICS_MODE = ["standard", "high-res", "high-res2", OFF]
 VAL_HDMI_INPUT_LEVEL = ["standard", "enhanced", "super_white", AUTO]
 VAL_HDMI_COLOR_SPACE = [AUTO, "ycbcr(4:4:4)", "ycbcr(4:2:2)", "rgb"]
 VAL_HDMI_2D_3D = ["2d", AUTO, "none", "side_by_side", "top_bottom"]
@@ -409,12 +410,19 @@ VAL_COLORIMETRY = [
     "bt2020(non-constant_luminance)",
     "srgb",
 ]
+VAL_HDR_MODES = [
+    HDR_CONTENT_SDR,
+    KEY_HDR,
+    "smpte_st_2084",
+    "hybrid_log",
+    "none",
+]
 VAL_HDR = {
-    "0": HDR_CONTENT_SDR,
-    "1": KEY_HDR,
-    "2": "smpte_st_2084",
-    "3": "hybrid_log",
-    "F": "none",
+    "0": VAL_HDR_MODES[0],
+    "1": VAL_HDR_MODES[1],
+    "2": VAL_HDR_MODES[2],
+    "3": VAL_HDR_MODES[3],
+    "F": VAL_HDR_MODES[4],
 }
 VAL_HDR_LEVEL = [AUTO, "-2", "-1", "0", "1", "2"]
 VAL_HDR_PROCESSING = ["static", "frame", "scene"]
