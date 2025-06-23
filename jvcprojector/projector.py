@@ -194,6 +194,7 @@ class JvcProjector:
                         const.KEY_COLOR_PROFILE: const.CMD_PICTURE_MODE_COLOR_PROFILE,
                         const.KEY_GRAPHICS_MODE: const.CMD_PICTURE_MODE_GRAPHICS_MODE,
                         const.KEY_COLOR_SPACE: const.CMD_FUNCTION_COLOR_SPACE,
+                        const.KEY_RESOLUTION: const.CMD_FUNCTION_SOURCE,
                     }
                 )
 

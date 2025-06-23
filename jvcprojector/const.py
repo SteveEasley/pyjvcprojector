@@ -129,6 +129,7 @@ KEY_MOTION_ENHANCE: Final = "motion_enhance"
 KEY_CLEAR_MOTION_DRIVE: Final = "clear_motion_drive"
 KEY_HDR_PROCESSING: Final = "hdr_processing"
 KEY_HDR_CONTENT_TYPE: Final = "hdr_content_type"
+KEY_RESOLUTION: Final = "resolution"
 
 
 # Command constants
