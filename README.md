@@ -4,6 +4,8 @@ A python library for controlling a JVC Projector over a network connection.
 
 https://pypi.org/project/pyjvcprojector/
 
+Forked from https://github.com/SteveEasley/pyjvcprojector
+
 ## Features
 
 A full reference to the available commands is available from JVC here
