@@ -2,12 +2,20 @@
 
 # ruff: noqa: F401
 
+from .command.base import Command
 from .error import (
     JvcProjectorAuthError,
-    JvcProjectorCommandError,
-    JvcProjectorConnectError,
     JvcProjectorError,
+    JvcProjectorTimeoutError,
 )
 from .projector import JvcProjector
 
-__version__ = "1.1.3"
+__all__ = [
+    "JvcProjector",
+    "JvcProjectorError",
+    "JvcProjectorTimeoutError",
+    "JvcProjectorAuthError",
+    "Command",
+]
+
+__version__ = "2.0.0b1"

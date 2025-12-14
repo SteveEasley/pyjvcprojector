@@ -7,14 +7,14 @@ import socket
 
 import aiodns
 
-from .error import JvcProjectorConnectError
+from .error import JvcProjectorError
 
 
-class JvcConnection:
+class Connection:
     """Class for representing a JVC Projector network connection."""
 
     def __init__(self, ip: str, port: int, timeout: float):
-        """Initialize class."""
+        """Initialize instance of class."""
         self._ip = ip
         self._port = port
         self._timeout = timeout
@@ -32,33 +32,35 @@ class JvcConnection:
         return self._port
 
     def is_connected(self) -> bool:
-        """Return if connected to device."""
+        """Return if connected to the projector."""
         return self._reader is not None and self._writer is not None
 
     async def connect(self) -> None:
-        """Connect to device."""
+        """Connect to the projector."""
         assert self._reader is None and self._writer is None
         conn = asyncio.open_connection(self._ip, self._port)
         self._reader, self._writer = await asyncio.wait_for(conn, timeout=self._timeout)
 
     async def read(self, n: int) -> bytes:
-        """Read n bytes from device."""
+        """Read n bytes from the projector."""
         assert self._reader
         return await asyncio.wait_for(self._reader.read(n), timeout=self._timeout)
 
-    async def readline(self) -> bytes:
-        """Read all bytes up to newline from device."""
+    async def readline(self, timeout: float | None = None) -> bytes:
+        """Read all bytes up to a newline from the projector."""
         assert self._reader
-        return await asyncio.wait_for(self._reader.readline(), timeout=self._timeout)
+        return await asyncio.wait_for(
+            self._reader.readline(), timeout=timeout or self._timeout
+        )
 
     async def write(self, data: bytes) -> None:
-        """Write data to device."""
+        """Write data to the projector."""
         assert self._writer
         self._writer.write(data)
         await self._writer.drain()
 
     async def disconnect(self) -> None:
-        """Disconnect from device."""
+        """Disconnect from the projector."""
         if self._writer:
             self._writer.close()
         self._writer = None
@@ -70,8 +72,8 @@ async def resolve(host: str) -> str:
     try:
         res = await aiodns.DNSResolver().gethostbyname(host, socket.AF_INET)
         if len(res.addresses) < 1:
-            raise JvcProjectorConnectError("Unexpected zero length addresses response")
+            raise JvcProjectorError("Unexpected zero length addresses response")
     except aiodns.error.DNSError as err:
-        raise JvcProjectorConnectError(f"Failed to resolve host {host}") from err
+        raise JvcProjectorError(f"Failed to resolve host {host}") from err
 
     return res.addresses[0]

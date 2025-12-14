@@ -3,17 +3,23 @@
 from __future__ import annotations
 
 import logging
+from typing import TYPE_CHECKING, Any, Final
 
-from . import command, const
-from .command import JvcCommand
+from . import command
+from .command.command import SPECIFICATIONS, Command
 from .connection import resolve
-from .device import JvcDevice
-from .error import JvcProjectorConnectError, JvcProjectorError
+from .device import Device
+from .error import JvcProjectorError
+
+if TYPE_CHECKING:
+    from .command.command import Spec
+
 
 _LOGGER = logging.getLogger(__name__)
 
-DEFAULT_PORT = 20554
-DEFAULT_TIMEOUT = 15.0
+
+DEFAULT_PORT: Final = 20554
+DEFAULT_TIMEOUT: Final = 2.0
 
 
 class JvcProjector:
@@ -27,156 +33,196 @@ class JvcProjector:
         timeout: float = DEFAULT_TIMEOUT,
         password: str | None = None,
     ) -> None:
-        """Initialize class."""
+        """Initialize instance of class."""
         self._host = host
         self._port = port
         self._timeout = timeout
         self._password = password
 
-        self._device: JvcDevice | None = None
-        self._ip: str = ""
-        self._model: str = ""
-        self._mac: str = ""
-        self._version: str = ""
-
-    @property
-    def ip(self) -> str:
-        """Returns ip."""
-        if not self._ip:
-            raise JvcProjectorError("ip not initialized")
-        return self._ip
+        self._device: Device | None = None
+        self._ip: str | None = None
+        self._spec: Spec | None = None
+        self._model: str | None = None
 
     @property
     def host(self) -> str:
-        """Returns host."""
+        """Returns host name."""
         return self._host
 
     @property
     def port(self) -> int:
-        """Returns port."""
+        """Returns ip port."""
         return self._port
+
+    @property
+    def ip(self) -> str:
+        """Returns ip address."""
+        if self._ip is None:
+            raise JvcProjectorError("IP not initialized")
+        return self._ip
 
     @property
     def model(self) -> str:
         """Returns model name."""
-        if not self._mac:
-            raise JvcProjectorError("model not initialized")
+        if self._model is None:
+            raise JvcProjectorError("Model not initialized")
         return self._model
 
     @property
-    def mac(self) -> str:
-        """Returns mac address."""
-        if not self._mac:
-            raise JvcProjectorError("mac address not initialized")
-        return self._mac
+    def spec(self) -> str:
+        """Returns specification."""
+        if not self._device:
+            raise JvcProjectorError("Not connected")
 
-    @property
-    def version(self) -> str:
-        """Get device software version."""
-        if not self._version:
-            raise JvcProjectorError("version address not initialized")
-        return self._version
+        spec: str = ""
 
-    async def connect(self, get_info: bool = False) -> None:
-        """Connect to device."""
+        if self._spec:
+            spec = self._spec.name
+            if self._spec.model.name != self._model:
+                spec += f" ({self._spec.model.name})"
+
+        return spec
+
+    async def connect(self, *, model: str | None = None) -> None:
+        """Initialize communication with the projector."""
         if self._device:
             return
 
         if not self._ip:
             self._ip = await resolve(self._host)
 
-        self._device = JvcDevice(self._ip, self._port, self._timeout, self._password)
+        self._device = Device(self._ip, self._port, self._timeout, self._password)
 
-        if not await self.test():
-            raise JvcProjectorConnectError("Failed to verify connection")
+        self._model = model if model else await self.get(command.ModelName)
+        if self._model is None:
+            raise JvcProjectorError("Unable to get projector model name")
 
-        if get_info:
-            await self.get_info()
+        for spec in SPECIFICATIONS:
+            if spec.matches_model(self._model):
+                self._spec = spec
+                break
+
+        if self._spec is None:
+            for spec in SPECIFICATIONS:
+                if spec.matches_prefix(self._model):
+                    msg = "Unknown model %s detected; defaulting to model %s (%s)"
+                    _LOGGER.warning(msg, self._model, spec.model.name, spec.name)
+                    self._spec = spec
+                    break
+
+        if self._spec is None:
+            _LOGGER.warning(
+                "Unknown model %s detected; entering limp mode", self._model
+            )
 
     async def disconnect(self) -> None:
-        """Disconnect from device."""
+        """Disconnect from the projector."""
         if self._device:
             await self._device.disconnect()
             self._device = None
 
-    async def get_info(self) -> dict[str, str]:
-        """Get device info."""
-        assert self._device
-        model = JvcCommand(command.MODEL, True)
-        mac = JvcCommand(command.MAC, True)
-        await self._send([model, mac])
+        self._ip = None
+        self._model = None
+        self._spec = None
 
-        if mac.response is None:
-            raise JvcProjectorError("Mac address not available")
+        Command.unload()
 
-        if model.response is None:
-            model.response = "(unknown)"
+    def info(self) -> dict[str, str]:
+        """Get projector information."""
+        if not self._device:
+            raise JvcProjectorError("Not connected")
 
-        self._model = model.response
-        self._mac = mac.response
-
-        return {"model": self._model, "mac": self._mac}
-
-    async def get_state(self) -> dict[str, str | None]:
-        """Get device state."""
-        assert self._device
-        pwr = JvcCommand(command.POWER, True)
-        inp = JvcCommand(command.INPUT, True)
-        src = JvcCommand(command.SOURCE, True)
-        res = await self._send([pwr, inp, src])
         return {
-            "power": res[0] or None,
-            "input": res[1] or const.NOSIGNAL,
-            "source": res[2] or const.NOSIGNAL,
+            "ip": self.ip,
+            "model": self.model,
+            "spec": self.spec,
         }
 
-    async def get_version(self) -> str | None:
-        """Get device software version."""
-        return await self.ref(command.VERSION)
+    async def get(self, name: str | type[Command]) -> str:
+        """Get a projector parameter value (reference command)."""
+        return str(await self._send(name))
 
-    async def get_power(self) -> str | None:
-        """Get power state."""
-        return await self.ref(command.POWER)
+    async def set(self, name: str | type[Command], value: Any = None) -> None:
+        """Set a projector parameter value (operation command)."""
+        await self._send(name, value)
 
-    async def get_input(self) -> str | None:
-        """Get current input."""
-        return await self.ref(command.INPUT)
+    async def remote(self, value: Any = None) -> None:
+        """Send a projector remote command."""
+        await self.set(command.Remote, value)
 
-    async def get_signal(self) -> str | None:
-        """Get if has signal."""
-        return await self.ref(command.SOURCE)
+    async def _send(self, name: str | type[Command], value: Any = None) -> str | None:
+        """Send a command to the projector."""
+        if not self._device:
+            raise JvcProjectorError("Not connected")
 
-    async def test(self) -> bool:
-        """Run test command."""
-        cmd = JvcCommand(f"{command.TEST}")
-        await self._send([cmd])
-        return cmd.ack
+        cls = Command.lookup(name) if isinstance(name, str) else name
 
-    async def power_on(self) -> None:
-        """Run power on command."""
-        await self.op(f"{command.POWER}1")
+        if cls is None:
+            raise JvcProjectorError(f"Command {name} not implemented")
 
-    async def power_off(self) -> None:
-        """Run power off command."""
-        await self.op(f"{command.POWER}0")
+        cmd = cls(self._spec)
 
-    async def remote(self, code: str) -> None:
-        """Run remote code command."""
-        await self.op(f"{command.REMOTE}{code}")
+        if not cmd.supports(self._spec):
+            raise JvcProjectorError(
+                f"Command {cmd.name} ({cmd.code}) not supported by this model"
+            )
 
-    async def op(self, code: str) -> None:
-        """Send operation code."""
-        await self._send([JvcCommand(code, False)])
+        if value is None:
+            if not cmd.reference:
+                raise JvcProjectorError(
+                    f"Invalid attempt to read from non-reference command {cmd.name} ({cmd.code})"
+                )
+        else:
+            if not cmd.operation:
+                raise JvcProjectorError(
+                    f"Invalid attempt to write to non-operation command {cmd.name} ({cmd.code})"
+                )
+            cmd.op_value = str(value)
 
-    async def ref(self, code: str) -> str | None:
-        """Send reference code."""
-        return (await self._send([JvcCommand(code, True)]))[0]
+        await self._device.send(cmd)
 
-    async def _send(self, cmds: list[JvcCommand]) -> list[str | None]:
-        """Send command to device."""
-        if self._device is None:
-            raise JvcProjectorError("Must call connect before sending commands")
+        return cmd.ref_value
 
-        await self._device.send(cmds)
+    def supports(self, name: str | type[Command]) -> bool:
+        """Check if a command is supported by the projector."""
+        if not self._device:
+            raise JvcProjectorError("Not connected")
+        assert self._spec
 
-        return [cmd.response for cmd in cmds]
+        cls = Command.lookup(name) if isinstance(name, str) else name
+
+        if cls is None:
+            raise JvcProjectorError(f"Command {name} not implemented")
+
+        return cls.supports(self._spec)
+
+    def describe(self, name: str | type[Command]) -> dict[str, Any]:
+        """Return a command description."""
+        if not self._device:
+            raise JvcProjectorError("Not connected")
+        assert self._spec
+
+        cls = Command.lookup(name) if isinstance(name, str) else name
+
+        if cls is None:
+            raise JvcProjectorError(f"Command {name} not implemented")
+
+        if cls.supports(self._spec):
+            return cls.describe()
+
+        raise JvcProjectorError(
+            f"Command {cls.name} ({cls.code}) not supported by this model"
+        )
+
+    def capabilities(self) -> dict[str, dict[str, str | dict[str, str]]]:
+        """Return the supported command list."""
+        if not self._device:
+            raise JvcProjectorError("Not connected")
+
+        commands: dict[str, dict[str, str | dict[str, str]]] = {}
+
+        for cls in Command.registry["name"].values():
+            if cls.supports(self._spec):
+                commands[cls.name] = cls.describe()
+
+        return commands

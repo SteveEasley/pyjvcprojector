@@ -7,10 +7,10 @@ HOST = "localhost"
 PORT = 12345
 TIMEOUT = 3.0
 MAC = "abcd1234"
-MODEL = "model123"
+MODEL = "B2A2"
 PASSWORD = "pass1234"
 
 
-def cc(hdr: bytes, cmd: str):
+def cc(hdr: bytes, cmd: str) -> bytes:
     """Create a command."""
     return hdr + cmd.encode() + END

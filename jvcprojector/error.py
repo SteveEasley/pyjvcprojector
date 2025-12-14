@@ -1,17 +1,17 @@
-"""Custom errors for a JVC Projector."""
+"""Error classes."""
 
 
 class JvcProjectorError(Exception):
-    """Projector Error."""
+    """Projector error."""
 
 
-class JvcProjectorConnectError(JvcProjectorError):
-    """Projector Connect Timeout."""
+class JvcProjectorTimeoutError(JvcProjectorError):
+    """Projector timeout error."""
 
 
-class JvcProjectorCommandError(JvcProjectorError):
-    """Projector Command Error."""
+class JvcProjectorReadWriteTimeoutError(JvcProjectorTimeoutError):
+    """Projector read timeout error."""
 
 
 class JvcProjectorAuthError(JvcProjectorError):
-    """Projector Password Invalid Error."""
+    """Projector auth error."""

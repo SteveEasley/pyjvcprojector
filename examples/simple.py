@@ -1,43 +1,47 @@
 import asyncio
 import logging
+import sys
 
-from jvcprojector.projector import JvcProjector
-from jvcprojector import const
+from jvcprojector import JvcProjector, command
 
 logging.basicConfig(level=logging.WARNING)
 
 
 async def main():
-    jp = JvcProjector("192.168.0.30")
+    jp = JvcProjector(sys.argv[1])
     await jp.connect()
 
-    print("Projector info:")
-    print(await jp.get_info())
+    print("Projector model info:")
+    print(
+        {
+            "model": jp.model,
+            "spec": jp.spec,
+        }
+    )
 
-    if await jp.get_power() != const.ON:
-        await jp.power_on()
+    if await jp.get(command.Power) == command.Power.STANDBY:
+        print("Turning projector on...")
+        await jp.set(command.Power, command.Power.ON)
+        await asyncio.sleep(1)
+
+    if await jp.get(command.Power) == command.Power.WARMING:
         print("Waiting for projector to warmup...")
-        while await jp.get_power() != const.ON:
+        while await jp.get(command.Power) != command.Power.ON:
             await asyncio.sleep(3)
+    elif await jp.get(command.Power) == command.Power.COOLING:
+        print("Run command after projector has cooled down")
+        sys.exit(0)
 
-    print("Current state:")
-    print(await jp.get_state())
-
-    #
     # Example of sending remote codes
-    #
-    print("Showing info")
-    await jp.remote(const.REMOTE_INFO)
+    print("Showing info on screen")
+    await jp.remote(command.Remote.INFO)
     await asyncio.sleep(5)
+    print("Hiding info on screen")
+    await jp.remote(command.Remote.BACK)
 
-    print("Hiding info")
-    await jp.remote(const.REMOTE_BACK)
-
-    #
-    # Example of reference command (reads value from function)
-    #
-    print("Picture mode info:")
-    print(await jp.ref("PMPM"))
+    # Example of reference command
+    print("Current projector input:")
+    print(await jp.get(command.Input))
 
     await jp.disconnect()
 

@@ -6,8 +6,8 @@ from unittest.mock import patch
 
 import pytest
 
-from jvcprojector import command, const
-from jvcprojector.command import JvcCommand
+from jvcprojector import command
+from jvcprojector.command.base import Command
 from jvcprojector.device import HEAD_ACK, PJACK, PJOK
 
 from . import IP, MAC, MODEL, PORT, cc
@@ -16,7 +16,7 @@ from . import IP, MAC, MODEL, PORT, cc
 @pytest.fixture(name="conn")
 def fixture_mock_connection(request):
     """Return a mocked connection."""
-    with patch("jvcprojector.device.JvcConnection", autospec=True) as mock:
+    with patch("jvcprojector.device.Connection", autospec=True) as mock:
         connected = False
 
         fixture = {"raise_on_connect": 0}
@@ -42,7 +42,7 @@ def fixture_mock_connection(request):
         conn.connect.side_effect = connect
         conn.disconnect.side_effect = disconnect
         conn.read.side_effect = [PJOK, PJACK]
-        conn.readline.side_effect = [cc(HEAD_ACK, command.POWER)]
+        conn.readline.side_effect = [cc(HEAD_ACK, command.Power.code)]
         conn.write.side_effect = lambda p: None
 
         yield conn
@@ -51,27 +51,32 @@ def fixture_mock_connection(request):
 @pytest.fixture(name="dev")
 def fixture_mock_device(request):
     """Return a mocked device."""
-    with patch("jvcprojector.projector.JvcDevice", autospec=True) as mock:
-        fixture = {
-            command.TEST: None,
-            command.MAC: MAC,
-            command.MODEL: MODEL,
-            command.POWER: const.ON,
-            command.INPUT: const.HDMI1,
-            command.SOURCE: const.SIGNAL,
+    with patch("jvcprojector.projector.Device", autospec=True) as mock:
+        fixture: dict[type[Command], str] = {
+            command.MacAddress: MAC,
+            command.ModelName: MODEL,
+            command.Power: "1",
+            command.Input: "6",
+            command.Signal: "1",
         }
 
         if hasattr(request, "param"):
             fixture.update(request.param)
 
-        async def send(cmds: list[JvcCommand]):
-            for cmd in cmds:
-                if cmd.code in fixture:
-                    if fixture[cmd.code]:
-                        cmd.response = fixture[cmd.code]
-                    cmd.ack = True
+        async def send(cmd: Command):
+            if type(cmd) in fixture:
+                if cmd.is_ref:
+                    cmd.ref_value = fixture[type(cmd)]
+                cmd.ack = True
 
         dev = mock.return_value
         dev.send.side_effect = send
 
         yield dev
+
+
+@pytest.fixture(autouse=True)
+def reset_commands():
+    """Ensure Command subclasses' cached state is reset before each test."""
+    Command.unload()
+    yield
