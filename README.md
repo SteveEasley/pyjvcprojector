@@ -1,7 +1,5 @@
 # pyjvcprojector
 
-[![Test](https://github.com/SteveEasley/pyjvcprojector/actions/workflows/ci.yml/badge.svg?branch=main)](https://github.com/SteveEasley/pyjvcprojector/actions/workflows/ci.yml)
-
 A Python client library for controlling JVC Projectors over a network connection.
 
 ## Features
@@ -238,6 +236,7 @@ Commands:
   describe <command>      Describe a command
   get <command>           Get value of a command
   set <command> <value>   Set value of a command
+  listen                  Listen for events  
 
 Options:
   -h, --host HOST         Projector hostname or IP address
