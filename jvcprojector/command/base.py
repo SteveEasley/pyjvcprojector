@@ -33,8 +33,9 @@ class Command:
     reference: bool = False
     operation: bool = False
     limp: bool = False
-    operation_timeout: float | None = None
     parameter: Parameter | dict[Spec | tuple[Spec, ...], Parameter]
+    depends: dict[type[Command], str | tuple[str, ...]] = {}
+    operation_timeout: float | None = None
     _parameter: Parameter | None = None
 
     registry: dict[str, dict[str, type[Command]]] = {
@@ -55,6 +56,10 @@ class Command:
             if re.search(pattern, cls.code):
                 cls.category = name
                 break
+
+        for k, v in cls.depends.items():
+            if isinstance(v, str):
+                cls.depends[k] = (v,)
 
     @classmethod
     def lookup(cls, name: str) -> type[Command] | None:

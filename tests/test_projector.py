@@ -58,7 +58,7 @@ async def test_connect_unknown_model(dev: AsyncMock):
     await p.connect()
     assert p.ip == IP
     assert p.model == "ABCD"
-    assert p.spec is None
+    assert p.spec == ""
     await p.disconnect()
 
 

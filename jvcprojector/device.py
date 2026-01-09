@@ -173,7 +173,7 @@ class Device:
         data += END
 
         _LOGGER.debug(
-            "Sending %s '%s (%s)'", "ref" if cmd.is_ref else "op", cmd.code, data
+            "Sending %s %s(%s) %s", "ref" if cmd.is_ref else "op", cmd.name, cmd.code, data
         )
 
         await self._conn.write(data)

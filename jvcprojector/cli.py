@@ -130,13 +130,14 @@ async def cmd_set(jp: JvcProjector, name: str, value: str) -> None:
 
 
 async def cmd_listen(jp: JvcProjector) -> None:
+    """Listen for events from the projector."""
     state = State()
     next_full_sync = 0.0
     retries = 0
 
     async def update(_cmd: type[Command], _new_state: State) -> str | None:
         """Helper function to return a reference command value."""
-        global next_full_sync
+        nonlocal next_full_sync
         if not jp.supports(_cmd):
             return None
         value = await jp.get(_cmd)

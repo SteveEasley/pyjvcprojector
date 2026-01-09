@@ -1234,94 +1234,6 @@ class ColorTemperatureCorrection(Command):
     }
 
 
-class DynamicControl(Command):
-    """Dynamic Control command (Dynamic CTRL / CMS Display Color)."""
-
-    code = "PMDC"
-    reference = True
-    operation = True
-
-    BALANCED = "balanced"
-    HIGH = "high"
-    LOW = "low"
-    MODE_1 = "mode-1"
-    MODE_2 = "mode-2"
-    MODE_3 = "mode-3"
-    OFF = "off"
-
-    parameter = {
-        (CS20241, CS20242): MapParameter(
-            size=1,
-            readwrite={
-                "0": OFF,
-                "1": LOW,
-                "2": HIGH,
-                "3": BALANCED,
-            },
-        ),
-        CS20221: MapParameter(
-            size=1,
-            readwrite={
-                "0": (OFF, B5A1, B5A2, B5A3),
-                "1": (MODE_1, B5A1, B5A2, B5A3),
-                "2": (MODE_2, B5A1, B5A2, B5A3),
-                "3": (MODE_3, B5A1, B5A2, B5A3),
-            },
-        ),
-        CS20172: MapParameter(
-            size=1,
-            readwrite={
-                "0": OFF,
-                "1": MODE_1,
-                "2": MODE_2,
-            },
-        ),
-    }
-
-
-class ClearMotionDrive(Command):
-    """Clear Motion Drive command."""
-
-    code = "PMCM"
-    reference = True
-    operation = True
-
-    OFF = "off"
-    LOW = "low"
-    HIGH = "high"
-    INVERSE_TELECINE = "inverse-telecine"
-
-    parameter = {
-        (
-            CS20241,
-            CS20221,
-            CS20191,
-            CS20172,
-            CS20171,
-            CS20161,
-            CS20141,
-            CS20131,
-            CS20121,
-        ): MapParameter(
-            size=1,
-            readwrite={
-                "0": OFF,
-                "3": LOW,
-                "4": HIGH,
-                "5": INVERSE_TELECINE,
-            },
-        ),
-        CS20242: MapParameter(
-            size=1,
-            readwrite={
-                "0": OFF,
-                "6": HIGH,
-                "7": LOW,
-            },
-        ),
-    }
-
-
 class MotionEnhance(Command):
     """Motion Enhance command."""
 
@@ -1522,8 +1434,65 @@ class Smoother(Command):
                 "0001": OFF,
             },
         )
+
     }
 
+class Hdr(Command):
+    """HDR command."""
+
+    code = "IFHR"
+    reference = True
+    operation = False
+
+    SDR = "sdr"
+    HDR = "hdr"
+    SMPTE_ST_2084 = "smpte-st-2084"
+    HYBRID_LOG = "hybrid-log"
+    HDR10_PLUS = "hdr10+"
+    NONE = "none"
+
+    parameter = {
+        (CS20241, CS20242): MapParameter(
+            size=1,
+            read={
+                "0": SDR,
+                "1": HDR,
+                "2": SMPTE_ST_2084,
+                "3": HYBRID_LOG,
+                "4": HDR10_PLUS,
+                "F": NONE,
+            },
+        ),
+        CS20221: MapParameter(
+            size=1,
+            read={
+                "0": SDR,
+                "1": HDR,
+                "2": SMPTE_ST_2084,
+                "3": HYBRID_LOG,
+                "4": HDR10_PLUS,
+            },
+        ),
+        CS20191: MapParameter(
+            size=1,
+            read={
+                "0": SDR,
+                "1": HDR,
+                "2": SMPTE_ST_2084,
+                "3": HYBRID_LOG,
+                "F": NONE,
+            },
+        ),
+        CS20172: MapParameter(
+            size=1,
+            read={
+                "0": SDR,
+                "1": HDR,
+                "2": SMPTE_ST_2084,
+                "F": NONE,
+            },
+        ),
+    }
 
 class HdrLevel(Command):
     """HDR Level  (HDR Quantizer) adjustment command."""
@@ -1573,6 +1542,7 @@ class HdrProcessing(Command):
     code = "PMHP"
     reference = True
     operation = True
+    depends = {Hdr: (Hdr.HDR, Hdr.HDR10_PLUS, Hdr.HYBRID_LOG, Hdr.SMPTE_ST_2084)}
 
     HDR10_PLUS = "hdr10+"
     STATIC = "static"
@@ -2258,6 +2228,94 @@ class LowLatencyAutoMode(Command):
         ),
     }
 
+
+class DynamicControl(Command):
+    """Dynamic Control command (Dynamic CTRL / CMS Display Color)."""
+
+    code = "PMDC"
+    reference = True
+    operation = True
+    depends = {LowLatencyMode: LowLatencyMode.OFF}
+
+    BALANCED = "balanced"
+    HIGH = "high"
+    LOW = "low"
+    MODE_1 = "mode-1"
+    MODE_2 = "mode-2"
+    MODE_3 = "mode-3"
+    OFF = "off"
+
+    parameter = {
+        (CS20241, CS20242): MapParameter(
+            size=1,
+            readwrite={
+                "0": OFF,
+                "1": LOW,
+                "2": HIGH,
+                "3": BALANCED,
+            },
+        ),
+        CS20221: MapParameter(
+            size=1,
+            readwrite={
+                "0": (OFF, B5A1, B5A2, B5A3),
+                "1": (MODE_1, B5A1, B5A2, B5A3),
+                "2": (MODE_2, B5A1, B5A2, B5A3),
+                "3": (MODE_3, B5A1, B5A2, B5A3),
+            },
+        ),
+        CS20172: MapParameter(
+            size=1,
+            readwrite={
+                "0": OFF,
+                "1": MODE_1,
+                "2": MODE_2,
+            },
+        ),
+    }
+
+class ClearMotionDrive(Command):
+    """Clear Motion Drive command."""
+
+    code = "PMCM"
+    reference = True
+    operation = True
+    depends = {LowLatencyMode: LowLatencyMode.OFF}
+
+    OFF = "off"
+    LOW = "low"
+    HIGH = "high"
+    INVERSE_TELECINE = "inverse-telecine"
+
+    parameter = {
+        (
+            CS20241,
+            CS20221,
+            CS20191,
+            CS20172,
+            CS20171,
+            CS20161,
+            CS20141,
+            CS20131,
+            CS20121,
+        ): MapParameter(
+            size=1,
+            readwrite={
+                "0": OFF,
+                "3": LOW,
+                "4": HIGH,
+                "5": INVERSE_TELECINE,
+            },
+        ),
+        CS20242: MapParameter(
+            size=1,
+            readwrite={
+                "0": OFF,
+                "6": HIGH,
+                "7": LOW,
+            },
+        ),
+    }
 
 class InstallationMode(Command):
     """Installation Mode command."""
@@ -2994,64 +3052,6 @@ class Colorimetry(Command):
                 "8": BT_2020_CONSTANT_LUMINANCE,
                 "9": BT_2020_NON_CONSTANT_LUMINANCE,
                 "A": OTHER,
-            },
-        ),
-    }
-
-
-class Hdr(Command):
-    """HDR command."""
-
-    code = "IFHR"
-    reference = True
-    operation = False
-
-    SDR = "sdr"
-    HDR = "hdr"
-    SMPTE_ST_2084 = "smpte-st-2084"
-    HYBRID_LOG = "hybrid-log"
-    HDR10_PLUS = "hdr10+"
-    NONE = "none"
-
-    parameter = {
-        (CS20241, CS20242): MapParameter(
-            size=1,
-            read={
-                "0": SDR,
-                "1": HDR,
-                "2": SMPTE_ST_2084,
-                "3": HYBRID_LOG,
-                "4": HDR10_PLUS,
-                "F": NONE,
-            },
-        ),
-        CS20221: MapParameter(
-            size=1,
-            read={
-                "0": SDR,
-                "1": HDR,
-                "2": SMPTE_ST_2084,
-                "3": HYBRID_LOG,
-                "4": HDR10_PLUS,
-            },
-        ),
-        CS20191: MapParameter(
-            size=1,
-            read={
-                "0": SDR,
-                "1": HDR,
-                "2": SMPTE_ST_2084,
-                "3": HYBRID_LOG,
-                "F": NONE,
-            },
-        ),
-        CS20172: MapParameter(
-            size=1,
-            read={
-                "0": SDR,
-                "1": HDR,
-                "2": SMPTE_ST_2084,
-                "F": NONE,
             },
         ),
     }
