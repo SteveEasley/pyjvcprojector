@@ -51,8 +51,10 @@ class Device:
         """Initialize instance of class."""
         self._conn = Connection(ip, port, timeout)
 
-        self._auth = struct.pack("16s", password.encode()) if password else b""
-        self._auth_hash = sha256(f"{password}{AUTH_SALT}".encode()).hexdigest().encode()
+        self._auth = self._auth_hash = b""
+        if password:
+            self._auth = struct.pack(f"{max(16, len(password))}s", password.encode())
+            self._auth_hash = sha256(f"{password}{AUTH_SALT}".encode()).hexdigest().encode()
 
         self._lock = asyncio.Lock()
         self._keepalive: asyncio.Task | None = None
@@ -141,7 +143,7 @@ class Device:
                     self._auth = self._auth_hash
 
             if data == PJNAK:
-                raise JvcProjectorAuthError
+                raise JvcProjectorAuthError("Authentication failed")
 
             if data != PJACK:
                 raise JvcProjectorError("Handshake ack invalid")

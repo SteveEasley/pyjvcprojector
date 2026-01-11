@@ -36,7 +36,7 @@ def fixture_mock_connection(request):
             connected = False
 
         conn = mock.return_value
-        conn.host = IP
+        conn.ip = IP
         conn.port = PORT
         conn.is_connected.side_effect = lambda: connected
         conn.connect.side_effect = connect
