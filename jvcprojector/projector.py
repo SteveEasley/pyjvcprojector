@@ -124,6 +124,8 @@ class JvcProjector:
 
         Command.unload()
 
+        _LOGGER.debug("Disconnected from projector")
+
     async def get(self, name: str | type[Command]) -> str:
         """Get a projector parameter value (reference command)."""
         return str(await self._send(name))

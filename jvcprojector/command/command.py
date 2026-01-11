@@ -1264,29 +1264,23 @@ class LightPower(Command):
     reference = True
     operation = True
 
-    P109 = "109"
-    P160 = "160"
-    P219 = "219"
     LOW = "low"
     MID = "mid"
     HIGH = "high"
     NORMAL = "normal"
 
     parameter = {
-        (CS20241, CS20242, CS20242): MapParameter(
-            size=1,
-            readwrite={
-                "0": P109,
-                "1": P219,
-                "2": P160,
-            },
-        ),
-        CS20221: MapParameter(
+        (CS20241, CS20242): MapParameter(
             size=1,
             readwrite={
                 "0": LOW,
                 "1": HIGH,
+                "2": MID,
             },
+        ),
+        CS20221: MapParameter(
+            size=1,
+            readwrite={"0": LOW, "1": HIGH, "2": (MID, B5A3, B5A2, B5A1)},
         ),
         CS20172: MapParameter(
             size=1,
