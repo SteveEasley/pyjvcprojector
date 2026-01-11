@@ -18,4 +18,4 @@ __all__ = [
     "Command",
 ]
 
-__version__ = "2.0.0b3"
+__version__ = "2.0.1"

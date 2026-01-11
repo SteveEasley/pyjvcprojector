@@ -6,7 +6,8 @@ import logging
 from typing import TYPE_CHECKING, Any, Final
 
 from . import command
-from .command.command import SPECIFICATIONS, Command
+from .command.base import LIMP_MODE, Command
+from .command.command import SPECIFICATIONS
 from .connection import resolve
 from .device import Device
 from .error import JvcProjectorError
@@ -41,7 +42,7 @@ class JvcProjector:
 
         self._device: Device | None = None
         self._ip: str | None = None
-        self._spec: Spec | None = None
+        self._spec: Spec = LIMP_MODE
         self._model: str | None = None
 
     @property
@@ -74,12 +75,10 @@ class JvcProjector:
         if not self._device:
             raise JvcProjectorError("Not connected")
 
-        spec: str = ""
+        spec = self._spec.name
 
-        if self._spec:
-            spec = self._spec.name
-            if self._spec.model.name != self._model:
-                spec += f" ({self._spec.model.name})"
+        if not self._spec.limp_mode and self._spec.model.name != self._model:
+            spec += f"-{self._spec.model.name}"
 
         return spec
 
@@ -94,23 +93,21 @@ class JvcProjector:
         self._device = Device(self._ip, self._port, self._timeout, self._password)
 
         self._model = model if model else await self.get(command.ModelName)
-        if self._model is None:
-            raise JvcProjectorError("Unable to get projector model name")
 
         for spec in SPECIFICATIONS:
             if spec.matches_model(self._model):
                 self._spec = spec
                 break
 
-        if self._spec is None:
+        if self._spec.limp_mode:
             for spec in SPECIFICATIONS:
                 if spec.matches_prefix(self._model):
-                    msg = "Unknown model %s detected; defaulting to model %s (%s)"
+                    msg = "Unknown model %s detected; defaulting %s (%s)"
                     _LOGGER.warning(msg, self._model, spec.model.name, spec.name)
                     self._spec = spec
                     break
 
-        if self._spec is None:
+        if self._spec.limp_mode:
             _LOGGER.warning(
                 "Unknown model %s detected; entering limp mode", self._model
             )
@@ -123,20 +120,9 @@ class JvcProjector:
 
         self._ip = None
         self._model = None
-        self._spec = None
+        self._spec = LIMP_MODE
 
         Command.unload()
-
-    def info(self) -> dict[str, str]:
-        """Get projector information."""
-        if not self._device:
-            raise JvcProjectorError("Not connected")
-
-        return {
-            "ip": self.ip,
-            "model": self.model,
-            "spec": self.spec,
-        }
 
     async def get(self, name: str | type[Command]) -> str:
         """Get a projector parameter value (reference command)."""
@@ -187,7 +173,6 @@ class JvcProjector:
         """Check if a command is supported by the projector."""
         if not self._device:
             raise JvcProjectorError("Not connected")
-        assert self._spec
 
         cls = Command.lookup(name) if isinstance(name, str) else name
 
@@ -200,7 +185,6 @@ class JvcProjector:
         """Return a command description."""
         if not self._device:
             raise JvcProjectorError("Not connected")
-        assert self._spec
 
         cls = Command.lookup(name) if isinstance(name, str) else name
 
@@ -214,12 +198,12 @@ class JvcProjector:
             f"Command {cls.name} ({cls.code}) not supported by this model"
         )
 
-    def capabilities(self) -> dict[str, dict[str, str | dict[str, str]]]:
+    def capabilities(self) -> dict[str, Any]:
         """Return the supported command list."""
         if not self._device:
             raise JvcProjectorError("Not connected")
 
-        commands: dict[str, dict[str, str | dict[str, str]]] = {}
+        commands: dict[str, Any] = {}
 
         for cls in Command.registry["name"].values():
             if cls.supports(self._spec):

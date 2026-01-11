@@ -81,7 +81,10 @@ async def cmd_list(jp: JvcProjector) -> None:
 
 async def cmd_describe(jp: JvcProjector, name: str) -> None:
     """Show help for a specific command."""
-    cmd = jp.describe(name)
+    try:
+        cmd = jp.describe(name)
+    except JvcProjectorError as e:
+        die(f"Error: {e}")
 
     code: str = str(cmd["code"])
     operation: bool = bool(cmd["operation"])
@@ -307,7 +310,8 @@ async def main() -> None:
         except JvcProjectorError as e:
             die(f"Error: {e}")
 
-    print(f"Detected model: {jp.model} ({jp.spec})\n")
+    if action in ("list", "describe", "listen"):
+        print(f"Detected model: {jp.model} ({jp.spec})")
 
     if action == "list":
         await cmd_list(jp)

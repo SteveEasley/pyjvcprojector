@@ -58,7 +58,7 @@ async def test_connect_unknown_model(dev: AsyncMock):
     await p.connect()
     assert p.ip == IP
     assert p.model == "ABCD"
-    assert p.spec == ""
+    assert p.spec == "UNKOWN"
     await p.disconnect()
 
 
@@ -70,19 +70,8 @@ async def test_connect_partial_model_match(dev: AsyncMock):
     await p.connect()
     assert p.ip == IP
     assert p.model == "B2A9"
-    assert p.spec == "CS20191 (B2A3)"
+    assert p.spec == "CS20191-B2A3"
     await p.disconnect()
-
-
-@pytest.mark.asyncio
-async def test_info(dev: AsyncMock):
-    """Test info method."""
-    p = JvcProjector(IP, port=PORT)
-    await p.connect()
-    info = p.info()
-    assert info["ip"] == IP
-    assert info["model"] == MODEL
-    assert info["spec"] == "CS20191"
 
 
 @pytest.mark.asyncio
@@ -110,9 +99,9 @@ async def test_set(dev: AsyncMock):
     await p.connect()
 
     # succeeds
-    assert await p.set(command.Power, command.Power.ON) is None
-    assert await p.set("Power", command.Power.ON) is None
-    assert await p.set("PW", command.Power.ON) is None
+    await p.set(command.Power, command.Power.ON)
+    await p.set("Power", command.Power.ON)
+    await p.set("PW", command.Power.ON)
 
     # fails
     with pytest.raises(JvcProjectorError):

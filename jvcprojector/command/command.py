@@ -88,7 +88,7 @@ class ModelName(Command):
     code = "MD"
     reference = True
     operation = False
-    limp = True
+    limp_mode = True
     parameter = ModelParameter()
 
 
@@ -98,7 +98,7 @@ class MacAddress(Command):
     code = "LSMA"
     reference = True
     operation = False
-    limp = True
+    limp_mode = True
     parameter = MacAddressParameter()
 
 
@@ -108,7 +108,7 @@ class Version(Command):
     code = "IFSV"
     reference = True
     operation = False
-    limp = True
+    limp_mode = True
     parameter = VersionParameter()
 
 
@@ -118,7 +118,7 @@ class Power(Command):
     code = "PW"
     reference = True
     operation = True
-    limp = True
+    limp_mode = True
 
     OFF = "off"
     ON = "on"
@@ -150,7 +150,7 @@ class Input(Command):
     reference = True
     operation = True
     operation_timeout = 10.0
-    limp = True
+    limp_mode = True
 
     HDMI_1 = "hdmi-1"
     HDMI_2 = "hdmi-2"
@@ -172,7 +172,7 @@ class Signal(Command):
     code = "SC"
     reference = True
     operation = False
-    limp = True
+    limp_mode = True
 
     NONE = "none"
     SIGNAL = "signal"
@@ -192,7 +192,7 @@ class Remote(Command):
     code = "RC"
     reference = False
     operation = True
-    limp = True
+    limp_mode = True
 
     OK = "ok"
     MENU = "menu"
@@ -1434,8 +1434,8 @@ class Smoother(Command):
                 "0001": OFF,
             },
         )
-
     }
+
 
 class Hdr(Command):
     """HDR command."""
@@ -1493,6 +1493,7 @@ class Hdr(Command):
             },
         ),
     }
+
 
 class HdrLevel(Command):
     """HDR Level  (HDR Quantizer) adjustment command."""
@@ -2274,6 +2275,7 @@ class DynamicControl(Command):
         ),
     }
 
+
 class ClearMotionDrive(Command):
     """Clear Motion Drive command."""
 
@@ -2316,6 +2318,7 @@ class ClearMotionDrive(Command):
             },
         ),
     }
+
 
 class InstallationMode(Command):
     """Installation Mode command."""

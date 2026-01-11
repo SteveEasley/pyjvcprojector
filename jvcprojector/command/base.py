@@ -32,7 +32,7 @@ class Command:
     category: str = "Other"
     reference: bool = False
     operation: bool = False
-    limp: bool = False
+    limp_mode: bool = False
     parameter: Parameter | dict[Spec | tuple[Spec, ...], Parameter]
     depends: dict[type[Command], str | tuple[str, ...]] = {}
     operation_timeout: float | None = None
@@ -75,7 +75,7 @@ class Command:
         return None
 
     @classmethod
-    def supports(cls, spec: Spec | None) -> bool:
+    def supports(cls, spec: Spec) -> bool:
         """Return if the current model supports the command."""
         if cls._parameter is None:
             cls._resolve(spec)
@@ -96,7 +96,7 @@ class Command:
         }
 
     @classmethod
-    def _resolve(cls, spec: Spec | None = None) -> None:
+    def _resolve(cls, spec: Spec) -> None:
         """Resolve the supported parameter for command."""
 
         # Commands not supported by the current model default to an empty sentinel parameter.
@@ -104,10 +104,10 @@ class Command:
 
         if isinstance(cls.parameter, Parameter):
             # e.g. parameter = MapParameter()
-            if spec or cls.limp:
+            if not spec.limp_mode or cls.limp_mode:
                 parameter = cls.parameter
 
-        elif isinstance(cls.parameter, dict) and spec:
+        elif isinstance(cls.parameter, dict):
             for key, param in cls.parameter.items():
                 if isinstance(key, Spec):
                     # e.g. parameter = {CS20241: MapParameter()}
@@ -134,13 +134,13 @@ class Command:
                 cmd._parameter.unload()
                 cmd._parameter = None
 
-    def __init__(self, spec: Spec | None = None):
+    def __init__(self, spec: Spec):
         """Initialize instance of class."""
         self.ack: bool = False
         self.is_ref: bool = True
         self.is_op: bool = False
 
-        self._spec: Spec | None = spec
+        self._spec: Spec = spec
         self._op_value: str | None = None
         self._ref_value: str | None = None
 
@@ -202,7 +202,7 @@ class Parameter:
         return type(self) is not Parameter  # pylint: disable=unidiomatic-typecheck
 
     # pylint: disable=unused-argument
-    def resolve(self, spec: Spec | None) -> None:
+    def resolve(self, spec: Spec) -> None:
         """Resolve the matching parameter for the given model."""
         return None
 
@@ -303,17 +303,17 @@ class MapParameter(Parameter):
         elif readwrite:
             self._write = readwrite
 
-    def resolve(self, spec: Spec | None):
+    def resolve(self, spec: Spec):
         for k, v in self._read.items():
             if isinstance(v, str):
                 self._resolved_read[k] = v
-            elif isinstance(v, tuple) and spec and spec.model in v[1:]:
+            elif isinstance(v, tuple) and not spec.limp_mode and spec.model in v[1:]:
                 self._resolved_read[k] = str(v[0])
 
         for k, v in self._write.items():
             if isinstance(v, str):
                 self._resolved_write[k] = v
-            elif isinstance(v, tuple) and spec and spec.model in v[1:]:
+            elif isinstance(v, tuple) and not spec.limp_mode and spec.model in v[1:]:
                 self._resolved_write[k] = str(v[0])
 
     def ref(self, cmd: Command, value: str) -> str:
@@ -377,3 +377,11 @@ class Spec:
                     self.model = model
                     return True
         return False
+
+    @property
+    def limp_mode(self):
+        """Return if the spec is for limp mode."""
+        return self is LIMP_MODE
+
+
+LIMP_MODE: Spec = Spec("UNKOWN")

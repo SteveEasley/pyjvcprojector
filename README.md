@@ -283,7 +283,7 @@ class Power(Command):
     code = "PW"                    # JVC protocol command code
     reference = True               # Supports reading (get)
     operation = True               # Supports writing (set)
-    limp = True                    # Available in limp mode (unknown models)
+    limp_mode = True               # Available in limp mode (unknown models)
 
     # Constants for command values
     OFF = "off"

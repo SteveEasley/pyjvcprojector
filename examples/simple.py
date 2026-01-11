@@ -12,12 +12,10 @@ async def main():
     await jp.connect()
 
     print("Projector model info:")
-    print(
-        {
-            "model": jp.model,
-            "spec": jp.spec,
-        }
-    )
+    print({
+        "model": jp.model,
+        "spec": jp.spec,
+    })
 
     if await jp.get(command.Power) == command.Power.STANDBY:
         print("Turning projector on...")
