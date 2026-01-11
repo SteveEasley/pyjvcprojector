@@ -3,11 +3,6 @@
 from __future__ import annotations
 
 import asyncio
-import socket
-
-import aiodns
-
-from .error import JvcProjectorError
 
 
 class Connection:
@@ -65,15 +60,3 @@ class Connection:
             self._writer.close()
         self._writer = None
         self._reader = None
-
-
-async def resolve(host: str) -> str:
-    """Resolve hostname to ip address."""
-    try:
-        res = await aiodns.DNSResolver().gethostbyname(host, socket.AF_INET)
-        if len(res.addresses) < 1:
-            raise JvcProjectorError("Unexpected zero length addresses response")
-    except aiodns.error.DNSError as err:
-        raise JvcProjectorError(f"Failed to resolve host {host}") from err
-
-    return res.addresses[0]

@@ -8,7 +8,7 @@ from jvcprojector import command
 from jvcprojector.error import JvcProjectorError
 from jvcprojector.projector import JvcProjector
 
-from . import HOST, IP, MODEL, PORT
+from . import IP, PORT
 
 # pylint: disable=unused-argument
 
@@ -20,8 +20,6 @@ async def test_init(dev: AsyncMock):
     assert p.host == IP
     assert p.port == PORT
     with pytest.raises(JvcProjectorError):
-        assert p.ip
-    with pytest.raises(JvcProjectorError):
         assert p.model
     with pytest.raises(JvcProjectorError):
         assert p.spec
@@ -32,22 +30,9 @@ async def test_connect(dev: AsyncMock):
     """Test connect succeeds."""
     p = JvcProjector(IP, port=PORT)
     await p.connect()
-    assert p.ip == IP
+    assert p.host == IP
     await p.disconnect()
     assert dev.disconnect.call_count == 1
-
-
-@pytest.mark.asyncio
-async def test_connect_host(dev: AsyncMock):
-    """Test connect succeeds."""
-    p = JvcProjector(HOST, port=PORT)
-    await p.connect()
-    assert p.ip == IP
-    assert p.host == HOST
-    assert p.port == PORT
-    assert p.model == MODEL
-    assert p.spec == "CS20191"
-    await p.disconnect()
 
 
 @pytest.mark.asyncio
@@ -56,7 +41,7 @@ async def test_connect_unknown_model(dev: AsyncMock):
     """Test connect with an unknown model succeeds."""
     p = JvcProjector(IP, port=PORT)
     await p.connect()
-    assert p.ip == IP
+    assert p.host == IP
     assert p.model == "ABCD"
     assert p.spec == "UNKOWN"
     await p.disconnect()
@@ -68,7 +53,7 @@ async def test_connect_partial_model_match(dev: AsyncMock):
     """Test connect with a partial model match succeeds."""
     p = JvcProjector(IP, port=PORT)
     await p.connect()
-    assert p.ip == IP
+    assert p.host == IP
     assert p.model == "B2A9"
     assert p.spec == "CS20191-B2A3"
     await p.disconnect()

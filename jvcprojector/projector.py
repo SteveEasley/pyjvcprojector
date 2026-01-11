@@ -8,7 +8,6 @@ from typing import TYPE_CHECKING, Any, Final
 from . import command
 from .command.base import LIMP_MODE, Command
 from .command.command import SPECIFICATIONS
-from .connection import resolve
 from .device import Device
 from .error import JvcProjectorError
 
@@ -41,26 +40,18 @@ class JvcProjector:
         self._password = password
 
         self._device: Device | None = None
-        self._ip: str | None = None
         self._spec: Spec = LIMP_MODE
         self._model: str | None = None
 
     @property
     def host(self) -> str:
-        """Returns host name."""
+        """Returns IP address."""
         return self._host
 
     @property
     def port(self) -> int:
         """Returns ip port."""
         return self._port
-
-    @property
-    def ip(self) -> str:
-        """Returns ip address."""
-        if self._ip is None:
-            raise JvcProjectorError("IP not initialized")
-        return self._ip
 
     @property
     def model(self) -> str:
@@ -87,10 +78,7 @@ class JvcProjector:
         if self._device:
             return
 
-        if not self._ip:
-            self._ip = await resolve(self._host)
-
-        self._device = Device(self._ip, self._port, self._timeout, self._password)
+        self._device = Device(self._host, self._port, self._timeout, self._password)
 
         self._model = model if model else await self.get(command.ModelName)
 
@@ -118,7 +106,6 @@ class JvcProjector:
             await self._device.disconnect()
             self._device = None
 
-        self._ip = None
         self._model = None
         self._spec = LIMP_MODE
 

@@ -59,23 +59,7 @@ async def test_send_op(conn: AsyncMock):
 
 
 @pytest.mark.asyncio
-async def test_send_with_password8(conn: AsyncMock):
-    """Test send with 8 character password succeeds."""
-    dev = Device(IP, PORT, TIMEOUT, "passwd78")
-    cmd = command.Power(CS20191)
-    cmd.op_value = command.Power.ON
-    await dev.send(cmd)
-    await dev.disconnect()
-    conn.write.assert_has_calls(
-        [
-            call(PJREQ + b"_passwd78\x00\x00"),
-            call(cc(HEAD_OP, f"{command.Power.code}1")),
-        ]
-    )
-
-
-@pytest.mark.asyncio
-async def test_send_with_password10(conn: AsyncMock):
+async def test_send_with_password(conn: AsyncMock):
     """Test send with 10 character password succeeds."""
     dev = Device(IP, PORT, TIMEOUT, "passwd7890")
     cmd = command.Power(CS20191)
@@ -83,7 +67,10 @@ async def test_send_with_password10(conn: AsyncMock):
     await dev.send(cmd)
     await dev.disconnect()
     conn.write.assert_has_calls(
-        [call(PJREQ + b"_passwd7890"), call(cc(HEAD_OP, f"{command.Power.code}1"))]
+        [
+            call(PJREQ + b"_passwd7890\x00\x00\x00\x00\x00\x00"),
+            call(cc(HEAD_OP, f"{command.Power.code}1")),
+        ]
     )
 
 

@@ -18,9 +18,7 @@ classifiers = [
 urls = { "Homepage" = "https://github.com/SteveEasley/pyjvcprojector" }
 dynamic = ["version"]
 
-dependencies = [
-    "aiodns==3.6.1"
-]
+dependencies = []
 
 [project.optional-dependencies]
 dev = [

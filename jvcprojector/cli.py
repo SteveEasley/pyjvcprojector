@@ -84,7 +84,7 @@ async def cmd_describe(jp: JvcProjector, name: str) -> None:
     try:
         cmd = jp.describe(name)
     except JvcProjectorError as e:
-        die(f"Error: {e}")
+        die(f"{e}")
 
     code: str = str(cmd["code"])
     operation: bool = bool(cmd["operation"])
@@ -116,18 +116,18 @@ async def cmd_get(jp: JvcProjector, name: str) -> None:
     try:
         print(await jp.get(name))
     except JvcProjectorError as e:
-        print(f"Error: {e}")
+        die(f"{e}")
 
 
 async def cmd_set(jp: JvcProjector, name: str, value: str) -> None:
     """Set a command value on the projector."""
     if name not in Command.registry["name"]:
-        die(f"Error: Unknown command {name}")
+        die(f"Unknown command {name}")
 
     try:
         await jp.set(name, value)
     except JvcProjectorError as e:
-        print(f"Error: {e}")
+        die(f"{e}")
     else:
         print("success")
 
@@ -227,7 +227,7 @@ def print_usage() -> None:
     print("  listen                  Listen for events")
     print()
     print("Options:")
-    print("  -h, --host HOST         Projector hostname or IP address")
+    print("  -h, --host HOST         Projector IP address")
     print("  -p, --password PASS     Projector password (if required)")
     print("  -m, --model MODEL       Model override (e.g. B8B1)")
     print("  -v, --verbose           Enable verbose logging")
@@ -262,12 +262,12 @@ def parse_args() -> dict[str, Any]:
 
         if arg in ("-h", "--host"):
             if i + 1 >= len(args):
-                die(f"Error: {arg} argument is required")
+                die(f"{arg} argument is required")
             result["host"] = args[i + 1]
             i += 2
         elif arg in ("-p", "--password"):
             if i + 1 >= len(args):
-                die(f"Error: {arg} argument is required")
+                die(f"{arg} argument is required")
             result["password"] = args[i + 1]
             i += 2
         elif arg in ("-m", "--model"):
@@ -277,7 +277,7 @@ def parse_args() -> dict[str, Any]:
             result["verbose"] = True
             i += 1
         elif arg.startswith("-"):
-            die(f"Error: Unknown option '{arg}'")
+            die(f"Unknown option '{arg}'")
             print_usage()
             sys.exit(1)
         elif not result["action"]:
@@ -308,7 +308,7 @@ async def main() -> None:
         try:
             await jp.connect(**({"model": model} if model else {}))
         except JvcProjectorError as e:
-            die(f"Error: {e}")
+            die(f"{e}")
 
     if action in ("list", "describe", "listen"):
         print(f"Detected model: {jp.model} ({jp.spec})")

@@ -216,7 +216,7 @@ JvcProjector(host, port=20554, timeout=2.0, password=None)
 - `info()` - Get projector information (IP, model, spec)
 
 **Properties:**
-- `host` - Hostname or IP address
+- `host` - IP address
 - `port` - TCP port (default: 20554)
 - `ip` - Resolved IP address (available after connect)
 - `model` - Projector model name (available after connect)

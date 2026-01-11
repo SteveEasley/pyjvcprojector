@@ -51,9 +51,8 @@ class Device:
         """Initialize instance of class."""
         self._conn = Connection(ip, port, timeout)
 
-        self._auth = b""
-        if password:
-            self._auth = struct.pack(f"{max(10, len(password))}s", password.encode())
+        self._auth = struct.pack("16s", password.encode()) if password else b""
+        self._auth_hash = sha256(f"{password}{AUTH_SALT}".encode()).hexdigest().encode()
 
         self._lock = asyncio.Lock()
         self._keepalive: asyncio.Task | None = None
@@ -136,15 +135,10 @@ class Device:
 
             if data == PJNAK:
                 _LOGGER.debug("Standard auth failed, trying SHA256 auth")
-                auth = (
-                    sha256(f"{self._auth.decode()}{AUTH_SALT}".encode())
-                    .hexdigest()
-                    .encode()
-                )
-                await self._conn.write(PJREQ + b"_" + auth)
+                await self._conn.write(PJREQ + b"_" + self._auth_hash)
                 data = await self._conn.read(len(PJACK))
                 if data == PJACK:
-                    self._auth = auth
+                    self._auth = self._auth_hash
 
             if data == PJNAK:
                 raise JvcProjectorAuthError
