@@ -152,16 +152,16 @@ class Input(Command):
     operation_timeout = 10.0
     limp_mode = True
 
-    HDMI_1 = "hdmi-1"
-    HDMI_2 = "hdmi-2"
+    HDMI1 = "hdmi1"
+    HDMI2 = "hdmi2"
     COMP = "comp"
     PC = "pc"
 
     parameter = MapParameter(
         size=1,
         readwrite={
-            "6": HDMI_1,
-            "7": HDMI_2,
+            "6": HDMI1,
+            "7": HDMI2,
         },
     )
 
@@ -204,8 +204,8 @@ class Remote(Command):
     RIGHT = "right"
     INFO = "info"
     INPUT = "input"
-    HDMI_1 = "hdmi-1"
-    HDMI_2 = "hdmi-2"
+    HDMI1 = "hdmi1"
+    HDMI2 = "hdmi2"
     SETTING_MEMORY = "setting-memory"
     LENS_CONTROL = "lens-control"
     PICTURE_MODE = "picture-mode"
@@ -246,8 +246,8 @@ class Remote(Command):
             "7334": RIGHT,
             "7374": INFO,
             "7308": INPUT,
-            "7370": HDMI_1,
-            "7371": HDMI_2,
+            "7370": HDMI1,
+            "7371": HDMI2,
             "73D4": SETTING_MEMORY,
             "7330": LENS_CONTROL,
             "73F4": PICTURE_MODE,

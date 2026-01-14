@@ -156,7 +156,7 @@ picture_mode = await jp.get(command.PictureMode)
 
 # Set a parameter value (operation command)
 await jp.set(command.Power, command.Power.ON)
-await jp.set(command.Input, command.Input.HDMI_1)
+await jp.set(command.Input, command.Input.HDMI1)
 await jp.set(command.PictureMode, command.PictureMode.CINEMA)
 ```
 

@@ -54,7 +54,9 @@ class Device:
         self._auth = self._auth_hash = b""
         if password:
             self._auth = struct.pack(f"{max(16, len(password))}s", password.encode())
-            self._auth_hash = sha256(f"{password}{AUTH_SALT}".encode()).hexdigest().encode()
+            self._auth_hash = (
+                sha256(f"{password}{AUTH_SALT}".encode()).hexdigest().encode()
+            )
 
         self._lock = asyncio.Lock()
         self._keepalive: asyncio.Task | None = None
