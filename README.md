@@ -1,5 +1,8 @@
 # pyjvcprojector
 
+[![Test](https://github.com/SteveEasley/pyjvcprojector/actions/workflows/ci.yml/badge.svg?branch=main)](https://github.com/SteveEasley/pyjvcprojector/actions/workflows/ci.yml)
+
+
 A Python client library for controlling JVC Projectors over a network connection.
 
 ## Features
