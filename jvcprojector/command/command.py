@@ -290,11 +290,11 @@ class PictureMode(Command):
     FILM = "film"
     FILMMAKER_MODE = "filmmaker-mode"
     FRAME_ADAPT_HDR = "frame-adapt-hdr"
-    FRAME_ADAPT_HDR_2 = "frame-adapt-hdr-2"
-    FRAME_ADAPT_HDR_3 = "frame-adapt-hdr-3"
+    FRAME_ADAPT_HDR2 = "frame-adapt-hdr2"
+    FRAME_ADAPT_HDR3 = "frame-adapt-hdr3"
     HDR = "hdr"
-    HDR_1 = "hdr-1"
-    HDR_2 = "hdr-2"
+    HDR1 = "hdr1"
+    HDR2 = "hdr2"
     HDR10 = "hdr10"
     HDR10_LL = "hdr10-ll"
     HDR10_PLUS = "hdr10+"
@@ -341,8 +341,8 @@ class PictureMode(Command):
                 "14": HLG,
                 "15": HDR10_PLUS,
                 "17": FILMMAKER_MODE,
-                "18": FRAME_ADAPT_HDR_2,
-                "19": FRAME_ADAPT_HDR_3,
+                "18": FRAME_ADAPT_HDR2,
+                "19": FRAME_ADAPT_HDR3,
                 "1B": VIVID,
                 "1C": NATURAL_LL,
                 "1D": HDR10_LL,
@@ -357,12 +357,12 @@ class PictureMode(Command):
                 "0B": FRAME_ADAPT_HDR,
                 "0C": SDR_1,
                 "0D": SDR_2,
-                "0E": HDR_1,
-                "0F": HDR_2,
+                "0E": HDR1,
+                "0F": HDR2,
                 "14": HLG,
                 "15": HDR10_PLUS,
                 "17": FILMMAKER_MODE,
-                "18": FRAME_ADAPT_HDR_2,
+                "18": FRAME_ADAPT_HDR2,
                 "1B": VIVID,
             },
         ),
@@ -384,8 +384,8 @@ class PictureMode(Command):
                 "15": HDR10_PLUS,
                 "16": PANA_PQ,
                 "17": FILMMAKER_MODE,
-                "18": FRAME_ADAPT_HDR_2,
-                "19": FRAME_ADAPT_HDR_3,
+                "18": FRAME_ADAPT_HDR2,
+                "19": FRAME_ADAPT_HDR3,
             },
         ),
         CS20191: MapParameter(
@@ -1925,13 +1925,13 @@ class PictureModeHdr10(Command):
     USER_5 = "user-5"
     USER_6 = "user-6"
     FRAME_ADAPT_HDR = "frame-adapt-hdr"
-    FRAME_ADAPT_HDR_2 = "frame-adapt-hdr-2"
-    FRAME_ADAPT_HDR_3 = "frame-adapt-hdr-3"
+    FRAME_ADAPT_HDR2 = "frame-adapt-hdr2"
+    FRAME_ADAPT_HDR3 = "frame-adapt-hdr3"
     HDR10_LL = "hdr10-ll"
     PANA_PQ = "pana-pq"
     LAST_SETTING = "last-setting"
-    HDR_1 = "hdr-1"
-    HDR_2 = "hdr-2"
+    HDR1 = "hdr1"
+    HDR2 = "hdr2"
 
     parameter = {
         CS20241: MapParameter(
@@ -1942,8 +1942,8 @@ class PictureModeHdr10(Command):
                 "6": USER_5,
                 "7": USER_6,
                 "8": FRAME_ADAPT_HDR,
-                "C": FRAME_ADAPT_HDR_2,
-                "D": FRAME_ADAPT_HDR_3,
+                "C": FRAME_ADAPT_HDR2,
+                "D": FRAME_ADAPT_HDR3,
                 "E": HDR10_LL,
                 "F": LAST_SETTING,
             },
@@ -1951,10 +1951,10 @@ class PictureModeHdr10(Command):
         CS20242: MapParameter(
             size=1,
             readwrite={
-                "4": HDR_1,
-                "5": HDR_2,
+                "4": HDR1,
+                "5": HDR2,
                 "8": FRAME_ADAPT_HDR,
-                "C": FRAME_ADAPT_HDR_2,
+                "C": FRAME_ADAPT_HDR2,
                 "F": LAST_SETTING,
             },
         ),
@@ -1967,8 +1967,8 @@ class PictureModeHdr10(Command):
                 "7": USER_6,
                 "8": FRAME_ADAPT_HDR,
                 "9": PANA_PQ,
-                "C": FRAME_ADAPT_HDR_2,
-                "D": FRAME_ADAPT_HDR_3,
+                "C": FRAME_ADAPT_HDR2,
+                "D": FRAME_ADAPT_HDR3,
                 "F": LAST_SETTING,
             },
         ),
