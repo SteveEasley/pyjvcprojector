@@ -284,6 +284,7 @@ class PictureMode(Command):
     code = "PMPM"
     reference = True
     operation = True
+    operation_timeout = 10.0
 
     ANIMATION = "animation"
     CINEMA = "cinema"
