@@ -23,6 +23,7 @@ from .base import (
 #   - A partial match of the first 3 characters is done top to bottom. (e.g., B5A9 would match B5A3)
 #   - If no match is found, the projector is considered to be in limp mode, with minimal command support.
 
+# fmt: off
 SPECIFICATIONS: tuple[Spec, ...] = (
     CS20241 := Spec(
         "CS20241",
@@ -53,8 +54,8 @@ SPECIFICATIONS: tuple[Spec, ...] = (
     ),
     CS20171 := Spec(
         "CS20171",
-        XHR1 := Model("XHR1"),  # X570R, RS420
-        XHR3 := Model("XHR3"),  # X770R, X970, X970R, RS520, RS620
+        XHR1 := Model("XHR1", "XHS1"),  # X570R, RS420, X590R, RS440
+        XHR3 := Model("XHR3", "XHS3"),  # X770R, X970, X970R, RS520, RS620, X790R, X990R, RS540, RS640
     ),
     CS20161 := Spec(
         "CS20161",
@@ -80,6 +81,7 @@ SPECIFICATIONS: tuple[Spec, ...] = (
         XHF := Model("XHF"),  # X70R, XC788R, RS55, X90R, XC988R, RS65
     ),
 )
+# fmt: on
 
 
 class ModelName(Command):
@@ -184,6 +186,16 @@ class Signal(Command):
             "1": SIGNAL,
         },
     )
+
+
+class LightTime(Command):
+    """Light Time (Lamp/Laser) command."""
+
+    code = "IFLT"
+    reference = True
+    operation = False
+    limp_mode = True
+    parameter = LightTimeParameter()
 
 
 class Remote(Command):
@@ -2968,15 +2980,6 @@ class ColorSpace(Command):
             },
         ),
     }
-
-
-class LightTime(Command):
-    """Light Time (Lamp/Laser) command."""
-
-    code = "IFLT"
-    reference = True
-    operation = False
-    parameter = LightTimeParameter()
 
 
 class Colorimetry(Command):
