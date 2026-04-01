@@ -1598,6 +1598,7 @@ class ContentType(Command):
     code = "PMCT"
     reference = True
     operation = True
+    operation_timeout = 10.0
 
     AUTO = "auto"
     SDR = "sdr"
