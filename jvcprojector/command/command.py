@@ -1478,6 +1478,7 @@ class Hdr(Command):
                 "2": SMPTE_ST_2084,
                 "3": HYBRID_LOG,
                 "4": HDR10_PLUS,
+                "F": NONE,
             },
         ),
         CS20191: MapParameter(
