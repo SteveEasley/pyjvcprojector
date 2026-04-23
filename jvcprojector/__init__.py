@@ -5,6 +5,7 @@
 from .command.base import Command
 from .error import (
     JvcProjectorAuthError,
+    JvcProjectorCommandError,
     JvcProjectorError,
     JvcProjectorTimeoutError,
 )
@@ -15,7 +16,8 @@ __all__ = [
     "JvcProjectorError",
     "JvcProjectorTimeoutError",
     "JvcProjectorAuthError",
+    "JvcProjectorCommandError",
     "Command",
 ]
 
-__version__ = "2.0.5"
+__version__ = "2.0.6"

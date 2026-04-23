@@ -15,3 +15,7 @@ class JvcProjectorReadWriteTimeoutError(JvcProjectorTimeoutError):
 
 class JvcProjectorAuthError(JvcProjectorError):
     """Projector auth error."""
+
+
+class JvcProjectorCommandError(JvcProjectorError):
+    """Projector command-level error."""

@@ -8,7 +8,7 @@ import logging
 import re
 from typing import Any
 
-from ..error import JvcProjectorError
+from ..error import JvcProjectorCommandError, JvcProjectorError
 
 _LOGGER = logging.getLogger(__name__)
 
@@ -318,7 +318,7 @@ class MapParameter(Parameter):
 
     def ref(self, cmd: Command, value: str) -> str:
         if value not in self._resolved_read:
-            raise JvcProjectorError(
+            raise JvcProjectorCommandError(
                 f"Command {cmd.name} ({cmd.code}) received unmapped value '{value}' from projector"
             )
 
@@ -329,7 +329,7 @@ class MapParameter(Parameter):
             if v == value:
                 return k
 
-        raise JvcProjectorError(
+        raise JvcProjectorCommandError(
             f"Command {cmd.name} ({cmd.code}) received unmapped value '{value}' from user"
         )
 

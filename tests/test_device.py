@@ -1,5 +1,6 @@
 """Tests for device module."""
 
+import asyncio
 from hashlib import sha256
 from unittest.mock import AsyncMock, call
 
@@ -20,7 +21,11 @@ from jvcprojector.device import (
     PJREQ,
     Device,
 )
-from jvcprojector.error import JvcProjectorError
+from jvcprojector.error import (
+    JvcProjectorCommandError,
+    JvcProjectorError,
+    JvcProjectorReadWriteTimeoutError,
+)
 
 from . import IP, PORT, TIMEOUT, cc
 
@@ -156,3 +161,60 @@ async def test_send_ref_bad_ack_error(conn: AsyncMock):
         await dev.send(cmd)
     conn.connect.assert_called_once()
     assert not cmd.ack
+
+
+@pytest.mark.asyncio
+async def test_send_ref_unmapped_value_raises_command_error(conn: AsyncMock):
+    """Unmapped response values raise JvcProjectorCommandError."""
+    conn.readline.side_effect = [
+        cc(HEAD_ACK, command.Power.code),
+        cc(HEAD_RES, command.Power.code + " "),
+    ]
+    dev = Device(IP, PORT, TIMEOUT, None)
+    cmd = command.Power(CS20191)
+    with pytest.raises(JvcProjectorCommandError):
+        await dev.send(cmd)
+    # Command errors leave the connection intact for reuse.
+    conn.disconnect.assert_not_called()
+
+
+@pytest.mark.asyncio
+async def test_send_ref_invalid_utf8_raises_command_error(conn: AsyncMock):
+    """Responses with non-UTF-8 bytes raise JvcProjectorCommandError."""
+    # Mimic the malformed X35 INML reply: @\x89\x01IN\xff\n
+    conn.readline.side_effect = [
+        cc(HEAD_ACK, command.InstallationMode.code),
+        HEAD_RES + b"IN\xff\n",
+    ]
+    dev = Device(IP, PORT, TIMEOUT, None)
+    cmd = command.InstallationMode(CS20191)
+    with pytest.raises(JvcProjectorCommandError):
+        await dev.send(cmd)
+    conn.disconnect.assert_not_called()
+
+
+@pytest.mark.asyncio
+async def test_send_timeout_disconnects_immediately(conn: AsyncMock):
+    """Timeouts must drop the connection so the next command is clean."""
+    conn.readline.side_effect = asyncio.TimeoutError
+    dev = Device(IP, PORT, TIMEOUT, None)
+    cmd = command.Power(CS20191)
+    cmd.op_value = command.Power.ON
+    with pytest.raises(JvcProjectorReadWriteTimeoutError):
+        await dev.send(cmd)
+    conn.disconnect.assert_called_once()
+
+
+@pytest.mark.asyncio
+async def test_send_command_error_keeps_connection(conn: AsyncMock):
+    """Command-level errors should keep the connection (via keepalive)."""
+    conn.readline.side_effect = [
+        cc(HEAD_ACK, command.Power.code),
+        cc(HEAD_RES, command.Power.code + " "),
+    ]
+    dev = Device(IP, PORT, TIMEOUT, None)
+    cmd = command.Power(CS20191)
+    with pytest.raises(JvcProjectorCommandError):
+        await dev.send(cmd)
+    # Immediate disconnect is reserved for connection-level failures.
+    conn.disconnect.assert_not_called()

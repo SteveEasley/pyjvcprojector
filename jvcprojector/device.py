@@ -12,6 +12,7 @@ from typing import TYPE_CHECKING, Final
 from .connection import Connection
 from .error import (
     JvcProjectorAuthError,
+    JvcProjectorCommandError,
     JvcProjectorError,
     JvcProjectorReadWriteTimeoutError,
     JvcProjectorTimeoutError,
@@ -77,7 +78,13 @@ class Device:
 
             try:
                 await self._send(cmd)
-            finally:
+            except JvcProjectorCommandError:
+                self._keepalive = asyncio.create_task(self.disconnect(KEEPALIVE_TTL))
+                raise
+            except BaseException:
+                await self.disconnect()
+                raise
+            else:
                 self._keepalive = asyncio.create_task(self.disconnect(KEEPALIVE_TTL))
 
             # Throttle next command. Give ops more time to take effect.
@@ -214,9 +221,8 @@ class Device:
             try:
                 cmd.ref_value = data[HEAD_LEN + 2 : -1].decode()
             except UnicodeDecodeError as e:
-                cmd.ref_value = data.hex()
-                raise JvcProjectorError(
-                    f"Invalid response '{data!r} for command {cmd.name} ({cmd.code})'"
+                raise JvcProjectorCommandError(
+                    f"Invalid response {data.hex()!r} for command {cmd.name} ({cmd.code})"
                 ) from e
 
         cmd.ack = True
