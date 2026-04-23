@@ -84,8 +84,8 @@ class Device:
             except BaseException:
                 await self.disconnect()
                 raise
-            else:
-                self._keepalive = asyncio.create_task(self.disconnect(KEEPALIVE_TTL))
+
+            self._keepalive = asyncio.create_task(self.disconnect(KEEPALIVE_TTL))
 
             # Throttle next command. Give ops more time to take effect.
             self._next_send = time() + 0.1 if cmd.is_ref else 1.0
