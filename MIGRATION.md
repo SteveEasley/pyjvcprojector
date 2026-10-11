@@ -16,11 +16,12 @@ await jp.power_on()
 state = await jp.get_power()
 
 # Direct protocol commands
-await jp.ref("PMPM")      # Read command
-await jp.op("PMPM01")     # Write command
+await jp.ref("PMPM")  # Read command
+await jp.op("PMPM01")  # Write command
 
 # Constants from separate module
 from jvcprojector import const
+
 await jp.remote(const.REMOTE_INFO)
 ```
 

@@ -31,7 +31,7 @@ class State:
     def __setitem__(self, cmd: type[Command], value):
         self.data[cmd.name] = value
 
-    def update(self, state: "State") -> dict[str, str]:
+    def update(self, state: State) -> dict[str, str]:
         """Update current state from new state."""
         changed: dict[str, str] = {}
         for key, val in state.data.items():

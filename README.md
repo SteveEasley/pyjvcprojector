@@ -37,6 +37,7 @@ python -m pip install pyjvcprojector
 import asyncio
 from jvcprojector import JvcProjector, command
 
+
 async def main():
     # Create projector instance
     jp = JvcProjector("{ip}")
@@ -62,6 +63,7 @@ async def main():
 
     # Disconnect
     await jp.disconnect()
+
 
 asyncio.run(main())
 ```
@@ -222,10 +224,10 @@ Each command class inherits from `Command` and defines:
 class Power(Command):
     """Power command."""
 
-    code = "PW"                    # JVC protocol command code
-    reference = True               # Supports reading (get)
-    operation = True               # Supports writing (set)
-    limp_mode = True               # Available in limp mode (unknown models)
+    code = "PW"  # JVC protocol command code
+    reference = True  # Supports reading (get)
+    operation = True  # Supports writing (set)
+    limp_mode = True  # Available in limp mode (unknown models)
 
     # Constants for command values
     OFF = "off"

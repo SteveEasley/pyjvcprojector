@@ -4,7 +4,6 @@ from pathlib import Path
 import re
 import subprocess
 
-import jvcprojector
 from jvcprojector.command.base import Command
 import jvcprojector.command.command as command_module
 
@@ -34,6 +33,7 @@ def main() -> None:
     subprocess.run(["ruff", "check", "--fix", str(path)], check=False)
 
     print("Done")
+
 
 if __name__ == "__main__":
     main()

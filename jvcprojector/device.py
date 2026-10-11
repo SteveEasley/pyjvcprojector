@@ -104,7 +104,7 @@ class Device:
             try:
                 _LOGGER.debug("Connecting to %s", self._conn.ip)
                 await self._conn.connect()
-            except (ConnectionRefusedError, asyncio.TimeoutError):
+            except (TimeoutError, ConnectionRefusedError):
                 retries += 1
                 if retries == 5:
                     _LOGGER.warning("Retrying refused connection")
@@ -117,7 +117,7 @@ class Device:
 
             try:
                 data = await self._conn.read(len(PJOK))
-            except asyncio.TimeoutError as err:
+            except TimeoutError as err:
                 raise JvcProjectorTimeoutError("Handshake init timeout") from err
 
             _LOGGER.debug("Handshake received %s", data)
@@ -157,7 +157,7 @@ class Device:
             if data != PJACK:
                 raise JvcProjectorError("Handshake ack invalid")
 
-        except asyncio.TimeoutError as err:
+        except TimeoutError as err:
             raise JvcProjectorTimeoutError("Handshake ack timeout") from err
 
         self._last_connect = time()
@@ -191,7 +191,7 @@ class Device:
             data = await self._conn.readline(
                 cmd.operation_timeout if cmd.is_op else None
             )
-        except asyncio.TimeoutError as e:
+        except TimeoutError as e:
             raise JvcProjectorReadWriteTimeoutError(
                 f"Read timeout for command {cmd.name} ({cmd.code})"
             ) from e
@@ -206,7 +206,7 @@ class Device:
         if cmd.is_ref:
             try:
                 data = await self._conn.readline()
-            except asyncio.TimeoutError as e:
+            except TimeoutError as e:
                 raise JvcProjectorReadWriteTimeoutError(
                     f"Read timeout for command {cmd.name} ({cmd.code})"
                 ) from e
