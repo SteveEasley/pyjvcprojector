@@ -1,0 +1,52 @@
+name: Publish to PyPI
+
+# yamllint disable-line rule:truthy
+on:
+  release:
+    types: [published]
+
+permissions: {}
+
+concurrency:
+  group: ${{ github.workflow }}
+  cancel-in-progress: false
+
+jobs:
+  publish:
+    name: Build and publish
+    runs-on: ubuntu-latest
+    permissions:
+      contents: read
+      id-token: write # For PyPI trusted publishing
+    steps:
+      - name: Check out code
+        uses: actions/checkout@3d3c42e5aac5ba805825da76410c181273ba90b1 # v7.0.1
+        with:
+          persist-credentials: false
+
+      - name: Validate release tag matches package version
+        shell: bash
+        run: |
+          tag="${GITHUB_REF_NAME#v}"
+          pkg_version="$(python3 -c 'import pathlib,re; text=pathlib.Path("jvcprojector/__init__.py").read_text(); m=re.search(r"__version__\s+=\s+\"([^\"]+)\"", text); print(m.group(1) if m else "")')"
+          if [[ -z "$pkg_version" ]]; then
+            echo "Could not parse version from jvcprojector/__init__.py."
+            exit 1
+          fi
+          if [[ "$tag" != "$pkg_version" ]]; then
+            echo "Release tag version ($tag) does not match jvcprojector.__version__ ($pkg_version)."
+            exit 1
+          fi
+
+      # Caching is off so a poisoned cache from another workflow can't reach a release build.
+      - name: Set up uv
+        uses: astral-sh/setup-uv@c18668ad3cf93ea998bef934396af7bb5c839dc7 # v10.2.0
+        with:
+          version: "0.12.23"
+          enable-cache: false
+
+      - name: Build
+        run: uv build
+
+      - name: Publish to PyPI
+        uses: pypa/gh-action-pypi-publish@dc37677b2e1c63e2034f94d8a5b11f265b73ba33 # v1.14.2
