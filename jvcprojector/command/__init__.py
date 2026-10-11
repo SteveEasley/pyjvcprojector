@@ -2,7 +2,7 @@
 Projector command definitions
 
 To update this file with the full list of command classes automatically, run:
-`python tools/update_imports.py`
+`uv run python tools/update_imports.py`
 """
 
 # ruff: noqa: F401

@@ -191,22 +191,33 @@ Options:
 
 ## Development
 
+The project is managed with [uv](https://docs.astral.sh/uv/):
+
 ```bash
-# Clone the repository
 git clone https://github.com/SteveEasley/pyjvcprojector.git
 cd pyjvcprojector
+uv sync
+uv run prek install   # optional: run the checks on every commit
+```
 
-# Install development dependencies
-pip install -e ".[dev]"
+### Running tests
 
-# Run tests
-pytest
+```bash
+uv run pytest
+```
 
-# Run type checking
-mypy jvcprojector
+To test against another supported Python version:
 
-# Run linting
-ruff check .
+```bash
+uv run --python 3.11 pytest
+```
+
+### Linting, type checking, and formatting
+
+Checks run as [prek](https://github.com/j178/prek) hooks: `ruff` (linting and formatting), `codespell`, `zizmor`, `yamllint`, `mypy`, and `pylint`.
+
+```bash
+uv run prek run --all-files
 ```
 
 ### Adding New Commands
@@ -303,7 +314,7 @@ Models are matched in order:
 4. Define the `parameter` (use `MapParameter` for most cases)
 5. Add human-readable constants for common values
 6. Optionally specify model-specific support using spec keys
-7. Run `python tools/update_imports.py` to update imports
+7. Run `uv run python tools/update_imports.py` to update imports
 
 The command automatically registers itself and becomes available via `command.YourCommandName`.
 
