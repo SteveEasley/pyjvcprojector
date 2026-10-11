@@ -377,4 +377,4 @@ class Spec:
         return self is LIMP_MODE
 
 
-LIMP_MODE: Spec = Spec("UNKOWN")
+LIMP_MODE: Spec = Spec("UNKNOWN")
