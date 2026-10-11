@@ -41,7 +41,10 @@ class Connection:
         assert self._reader
         return await asyncio.wait_for(self._reader.read(n), timeout=self._timeout)
 
-    async def readline(self, timeout: float | None = None) -> bytes:
+    async def readline(
+        self,
+        timeout: float | None = None,  # noqa: ASYNC109 - replaces the default read timeout
+    ) -> bytes:
         """Read all bytes up to a newline from the projector."""
         assert self._reader
         return await asyncio.wait_for(

@@ -60,7 +60,7 @@ required-version = ">=0.16.10"
 exclude = ["examples"]
 
 [tool.ruff.lint]
-extend-select = ["I"]
+extend-select = ["ASYNC", "I"]
 
 [tool.ruff.lint.per-file-ignores]
 # Command subclasses override class-level tables that Command annotates as ClassVar.
