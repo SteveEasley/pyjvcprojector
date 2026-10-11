@@ -2,18 +2,21 @@
 name = "pyjvcprojector"
 description = "A python client library for controlling a JVC Projector over a network connection."
 readme = { file = "README.md", content-type = "text/markdown" }
-requires-python = ">=3.10"
-license = { file = "MIT" }
+requires-python = ">=3.11"
+license = "MIT"
 authors = [
     { name = "Steve Easley", email = "tardis74@yahoo.com" },
 ]
 classifiers = [
     "Development Status :: 5 - Production/Stable",
     "Intended Audience :: Developers",
-    "License :: OSI Approved :: MIT License",
     "Topic :: Home Automation",
     "Topic :: Software Development :: Libraries",
-    "Programming Language :: Python :: 3.10",
+    "Programming Language :: Python :: 3 :: Only",
+    "Programming Language :: Python :: 3.11",
+    "Programming Language :: Python :: 3.12",
+    "Programming Language :: Python :: 3.13",
+    "Programming Language :: Python :: 3.14",
 ]
 urls = { "Homepage" = "https://github.com/SteveEasley/pyjvcprojector" }
 dynamic = ["version"]
@@ -32,7 +35,7 @@ dev = [
 ]
 
 [build-system]
-requires = ["setuptools>=75.1.0", "wheel"]
+requires = ["setuptools==84.0.0"]
 build-backend = "setuptools.build_meta"
 
 [tool.setuptools]
