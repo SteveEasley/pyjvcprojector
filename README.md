@@ -15,12 +15,6 @@ A Python client library for controlling JVC Projectors over a network connection
 - **Command discovery** - Check supported commands and capabilities
 - **CLI tool** - Command-line interface included
 
-## ⚠️ Version 2.0 Breaking Changes
-
-Version 2.0 introduces significant API changes that are **not backwards compatible** with 1.x versions.
-The library has been completely redesigned for better maintainability and extensibility.
-See the [Migration Guide](MIGRATION.md) for details.
-
 ## Installation
 
 ```bash
