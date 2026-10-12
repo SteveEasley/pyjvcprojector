@@ -6,7 +6,7 @@ from __future__ import annotations
 
 import logging
 import re
-from typing import Any
+from typing import Any, ClassVar
 
 from ..error import JvcProjectorCommandError, JvcProjectorError
 
@@ -33,12 +33,12 @@ class Command:
     reference: bool = False
     operation: bool = False
     limp_mode: bool = False
-    parameter: Parameter | dict[Spec | tuple[Spec, ...], Parameter]
-    depends: dict[type[Command], str | tuple[str, ...]] = {}
+    parameter: ClassVar[Parameter | dict[Spec | tuple[Spec, ...], Parameter]]
+    depends: ClassVar[dict[type[Command], str | tuple[str, ...]]] = {}
     operation_timeout: float | None = None
     _parameter: Parameter | None = None
 
-    registry: dict[str, dict[str, type[Command]]] = {
+    registry: ClassVar[dict[str, dict[str, type[Command]]]] = {
         "name": {},
         "code": {},
     }
@@ -109,16 +109,11 @@ class Command:
 
         elif isinstance(cls.parameter, dict):
             for key, param in cls.parameter.items():
-                if isinstance(key, Spec):
-                    # e.g. parameter = {CS20241: MapParameter()}
-                    if key == spec:
-                        parameter = param
-                        break
-                elif isinstance(key, tuple):
-                    # e.g. parameter = {(CS20241, CS20221): MapParameter()}
-                    if spec in key:
-                        parameter = param
-                        break
+                # e.g. parameter = {CS20241: MapParameter()}
+                # or parameter = {(CS20241, CS20221): MapParameter()}
+                if key == spec or (isinstance(key, tuple) and spec in key):
+                    parameter = param
+                    break
 
         parameter.resolve(spec)
 
@@ -204,7 +199,6 @@ class Parameter:
     # pylint: disable=unused-argument
     def resolve(self, spec: Spec) -> None:
         """Resolve the matching parameter for the given model."""
-        return None
 
     def describe(self) -> str | dict[str, dict[str, str]]:
         """Return a descriptive representation of the parameter."""
@@ -212,7 +206,6 @@ class Parameter:
 
     def unload(self) -> None:
         """Clear resolved parameter."""
-        return None
 
 
 class ModelParameter(Parameter):
@@ -384,4 +377,4 @@ class Spec:
         return self is LIMP_MODE
 
 
-LIMP_MODE: Spec = Spec("UNKOWN")
+LIMP_MODE: Spec = Spec("UNKNOWN")

@@ -2,37 +2,41 @@
 name = "pyjvcprojector"
 description = "A python client library for controlling a JVC Projector over a network connection."
 readme = { file = "README.md", content-type = "text/markdown" }
-requires-python = ">=3.10"
-license = { file = "MIT" }
+requires-python = ">=3.11"
+license = "MIT"
 authors = [
     { name = "Steve Easley", email = "tardis74@yahoo.com" },
 ]
 classifiers = [
     "Development Status :: 5 - Production/Stable",
     "Intended Audience :: Developers",
-    "License :: OSI Approved :: MIT License",
     "Topic :: Home Automation",
     "Topic :: Software Development :: Libraries",
-    "Programming Language :: Python :: 3.10",
+    "Programming Language :: Python :: 3 :: Only",
+    "Programming Language :: Python :: 3.11",
+    "Programming Language :: Python :: 3.12",
+    "Programming Language :: Python :: 3.13",
+    "Programming Language :: Python :: 3.14",
 ]
 urls = { "Homepage" = "https://github.com/SteveEasley/pyjvcprojector" }
 dynamic = ["version"]
 
 dependencies = []
 
-[project.optional-dependencies]
+# Dev tools are pinned to the versions Home Assistant uses; bump them together.
+[dependency-groups]
 dev = [
-    "build==1.3.0",
-    "coverage==7.13.0",
-    "mypy==1.19.0",
-    "pytest-asyncio==1.3.0",
-    "pytest==9.0.2",
-    "ruff==0.14.9",
-    "twine==6.2.0",
+    "mypy==2.4.0",
+    "prek==0.5.4",
+    "pylint==4.1.2",
+    "pytest-asyncio==1.4.0",
+    "pytest-timeout==2.4.0",
+    "pytest==9.0.3",
+    "ruff==0.16.10",
 ]
 
 [build-system]
-requires = ["setuptools>=75.1.0", "wheel"]
+requires = ["setuptools==84.0.0"]
 build-backend = "setuptools.build_meta"
 
 [tool.setuptools]
@@ -48,18 +52,21 @@ version = { attr = "jvcprojector.__version__" }
 log_level = "DEBUG"
 testpaths = "tests"
 norecursedirs = ".git"
+timeout = 10
 filterwarnings = [
     "ignore:.*loop argument is deprecated:DeprecationWarning"
 ]
 
 [tool.ruff]
-required-version = ">=0.14.9"
+required-version = ">=0.16.10"
 exclude = ["examples"]
 
-
 [tool.ruff.lint]
-select = ["E", "F", "I"]
-ignore = ["F405", "E501"]
+extend-select = ["ASYNC", "I"]
+
+[tool.ruff.lint.per-file-ignores]
+# Command subclasses override class-level tables that Command annotates as ClassVar.
+"jvcprojector/command/command.py" = ["RUF012"]
 
 [tool.ruff.lint.isort]
 combine-as-imports = true

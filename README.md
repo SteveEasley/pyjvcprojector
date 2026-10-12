@@ -15,12 +15,6 @@ A Python client library for controlling JVC Projectors over a network connection
 - **Command discovery** - Check supported commands and capabilities
 - **CLI tool** - Command-line interface included
 
-## ⚠️ Version 2.0 Breaking Changes
-
-Version 2.0 introduces significant API changes that are **not backwards compatible** with 1.x versions.
-The library has been completely redesigned for better maintainability and extensibility.
-See the [Migration Guide](MIGRATION.md) for details.
-
 ## Installation
 
 ```bash
@@ -29,13 +23,14 @@ python -m pip install pyjvcprojector
 
 ## Requirements
 
-- Python 3.10 or higher
+- Python 3.11 or higher
 
 ## Quickstart
 
 ```python
 import asyncio
 from jvcprojector import JvcProjector, command
+
 
 async def main():
     # Create projector instance
@@ -62,6 +57,7 @@ async def main():
 
     # Disconnect
     await jp.disconnect()
+
 
 asyncio.run(main())
 ```
@@ -189,22 +185,33 @@ Options:
 
 ## Development
 
+The project is managed with [uv](https://docs.astral.sh/uv/):
+
 ```bash
-# Clone the repository
 git clone https://github.com/SteveEasley/pyjvcprojector.git
 cd pyjvcprojector
+uv sync
+uv run prek install   # optional: run the checks on every commit
+```
 
-# Install development dependencies
-pip install -e ".[dev]"
+### Running tests
 
-# Run tests
-pytest
+```bash
+uv run pytest
+```
 
-# Run type checking
-mypy jvcprojector
+To test against another supported Python version:
 
-# Run linting
-ruff check .
+```bash
+uv run --python 3.11 pytest
+```
+
+### Linting, type checking, and formatting
+
+Checks run as [prek](https://github.com/j178/prek) hooks: `ruff` (linting and formatting), `codespell`, `zizmor`, `yamllint`, `mypy`, and `pylint`.
+
+```bash
+uv run prek run --all-files
 ```
 
 ### Adding New Commands
@@ -222,10 +229,10 @@ Each command class inherits from `Command` and defines:
 class Power(Command):
     """Power command."""
 
-    code = "PW"                    # JVC protocol command code
-    reference = True               # Supports reading (get)
-    operation = True               # Supports writing (set)
-    limp_mode = True               # Available in limp mode (unknown models)
+    code = "PW"  # JVC protocol command code
+    reference = True  # Supports reading (get)
+    operation = True  # Supports writing (set)
+    limp_mode = True  # Available in limp mode (unknown models)
 
     # Constants for command values
     OFF = "off"
@@ -301,7 +308,7 @@ Models are matched in order:
 4. Define the `parameter` (use `MapParameter` for most cases)
 5. Add human-readable constants for common values
 6. Optionally specify model-specific support using spec keys
-7. Run `python tools/update_imports.py` to update imports
+7. Run `uv run python tools/update_imports.py` to update imports
 
 The command automatically registers itself and becomes available via `command.YourCommandName`.
 
