@@ -2335,7 +2335,7 @@ class InstallationMode(Command):
     code = "INML"
     reference = True
     operation = True
-    operation_timeout = 30
+    operation_timeout = 60
 
     MEMORY_1 = "memory-1"
     MEMORY_2 = "memory-2"
