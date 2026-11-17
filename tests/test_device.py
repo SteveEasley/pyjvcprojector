@@ -164,6 +164,39 @@ async def test_send_ref_bad_ack_error(conn: AsyncMock):
 
 
 @pytest.mark.asyncio
+async def test_send_ref_ack_header_response(conn: AsyncMock):
+    """Test reference response with an ack header is accepted."""
+    # Mimic the X30 IFSV reply: \x06\x89\x01IF28-056\n
+    conn.readline.side_effect = [cc(HEAD_ACK, "IF"), cc(HEAD_ACK, "IF28-056")]
+    dev = Device(IP, PORT, TIMEOUT, None)
+    cmd = command.Version(CS20191)
+    await dev.send(cmd)
+    await dev.disconnect()
+    assert cmd.ack
+    assert cmd.ref_value == "28-056"
+
+
+@pytest.mark.asyncio
+@pytest.mark.parametrize(
+    "response",
+    [
+        pytest.param(cc(HEAD_ACK, "IF"), id="duplicated_ack"),
+        pytest.param(cc(HEAD_ACK, "PW28-056"), id="wrong_code"),
+    ],
+)
+async def test_send_ref_ack_header_response_error(conn: AsyncMock, response: bytes):
+    """Test invalid reference responses with an ack header raise an error."""
+    conn.readline.side_effect = [cc(HEAD_ACK, "IF"), response]
+    dev = Device(IP, PORT, TIMEOUT, None)
+    cmd = command.Version(CS20191)
+    with pytest.raises(JvcProjectorError) as exc:
+        await dev.send(cmd)
+    assert not isinstance(exc.value, JvcProjectorCommandError)
+    conn.disconnect.assert_called_once()
+    assert not cmd.ack
+
+
+@pytest.mark.asyncio
 async def test_send_ref_unmapped_value_raises_command_error(conn: AsyncMock):
     """Unmapped response values raise JvcProjectorCommandError."""
     conn.readline.side_effect = [

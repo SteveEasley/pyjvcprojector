@@ -213,7 +213,16 @@ class Device:
 
             _LOGGER.debug("Received ref %s (%s)", data[HEAD_LEN + 2 : -1], data)
 
-            if not data.startswith(HEAD_RES + code[0:2]):
+            # Older models such as the X30 answer some references (seen with IFSV)
+            # with an ack header instead of a response header. A bare ack is
+            # still rejected so a duplicated ack is not taken as an empty value.
+            if not (
+                data.startswith(HEAD_RES + code[0:2])
+                or (
+                    data.startswith(HEAD_ACK + code[0:2])
+                    and data != HEAD_ACK + code[0:2] + END
+                )
+            ):
                 raise JvcProjectorError(
                     f"Invalid header '{data!r}' for command {cmd.name} ({cmd.code})"
                 )
